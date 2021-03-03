@@ -1,0 +1,30 @@
+---
+
+#------------------------- create databases for analytics-datasources.xml file in the das datasources----------------
+  - name: DAS DB configurations - create the analytics_eventstore database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'CREATE DATABASE analytics_eventstore;'
+    when: import_dbs == "yes"
+
+  - name: HUB DB configurations - grant permission to analytics_datastore database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON analytics_eventstore.* TO '{{das_mysql_user}}'@'{{das_host_1}}' IDENTIFIED BY "{{das_mysql_password}}";'
+    when: import_dbs == "yes"
+
+  - name: DAS DB configurations - create the analytics_datastore database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'CREATE DATABASE analytics_datastore;'
+    when: import_dbs == "yes"
+
+  - name: HUB DB configurations - grant permission to analytics_datastore database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON analytics_datastore.* TO '{{das_mysql_user}}'@'{{das_host_1}}' IDENTIFIED BY "{{das_mysql_password}}";'
+    when: import_dbs == "yes"
+
+#-------------------Setup User Manager database------------------
+  - name: DAS DB configurations - grant permission to prodUMdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON prodUMdb.* TO '{{das_mysql_user}}'@'{{das_host_1}}' IDENTIFIED BY "{{das_mysql_password}}";'
+
+#-------------------Setup API Manager statistics db------------------
+  - name: DAS DB configurations - grant permission to prodStatdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON prodStatdb.* TO '{{das_mysql_user}}'@'{{das_host_1}}' IDENTIFIED BY "{{das_mysql_password}}";'
+
+#-------------------Setup API Manager reg db------------------
+  - name: DAS DB configurations - grant permission to prodStatdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON prodregdb.* TO '{{das_mysql_user}}'@'{{das_host_1}}' IDENTIFIED BY "{{das_mysql_password}}";'

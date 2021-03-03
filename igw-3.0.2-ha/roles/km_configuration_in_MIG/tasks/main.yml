@@ -1,0 +1,213 @@
+---
+  - set_fact:
+     mig_product: "{{extract_location}}/wso2telcoids-{{mig_version}}"
+     https_port: "9443"
+
+#-------------------Copy master-datasources-------------------
+  - name: KM configurations in MIG - copying master-datasources.xml to repository/conf
+    copy:
+     src: "mig-master-datasources.xml"
+     dest: "{{mig_product}}/repository/conf/datasources/master-datasources.xml"
+
+#-------------------Change master-datasources.xml-------------------
+  - name: KM configurations in MIG - Setup username in master-datasources.xml file
+    replace:
+      dest: "{{mig_product}}/repository/conf/datasources/master-datasources.xml"
+      regexp: 'mysqlname'
+      replace: '{{mysql_user}}'
+      backup: no
+
+  - name: KM configurations in MIG - Setup password in master-datasources.xml file
+    replace:
+      dest: "{{mig_product}}/repository/conf/datasources/master-datasources.xml"
+      regexp: 'mysqlpassword'
+      replace: '{{mysql_password}}'
+      backup: no
+
+  - name: KM configurations in MIG - Setup host in master-datasources.xml file
+    replace:
+      dest: "{{mig_product}}/repository/conf/datasources/master-datasources.xml"
+      regexp: 'localhost'
+      replace: '{{mysql_host}}'
+      backup: no
+
+  - name: KM configurations in MIG - Setup port in master-datasources.xml file
+    replace:
+      dest: "{{mig_product}}/repository/conf/datasources/master-datasources.xml"
+      regexp: '3306'
+      replace: '{{mysql_port}}'
+      backup: no
+
+  - name: KM configurations in MIG - Rename hub_userstoredb to prodUMdb in master-datasources.xml file
+    replace:
+      dest: "{{mig_product}}/repository/conf/datasources/master-datasources.xml"
+      regexp: 'userstore'
+      replace: 'prodUMdb'
+      backup: no
+
+  - name: KM configurations in MIG - Rename hub_regdb to prodregdb in master-datasources.xml file
+    replace:
+      dest: "{{mig_product}}/repository/conf/datasources/master-datasources.xml"
+      regexp: 'registry'
+      replace: 'prodregdb'
+      backup: no
+
+#-------------------Copy api-manager.xml from hub location------------------
+  - name: KM configurations in MIG - copying api-manager.xml to hub to IS
+    copy:
+     src: "api-manager.xml"
+     dest: "{{mig_product}}/repository/conf"
+
+#-------------------Copy identity.xml from hub location------------------
+  - name: KM configurations in MIG - copying identity.xml to hub to IS
+    copy:
+     src: "identity.xml"
+     dest: "{{mig_product}}/repository/conf/identity"
+
+#-----------------Change offset------------------
+  - name: KM configurations in MIG - Change GatewayType in repository/conf/api-manager.xml
+    replace:
+      dest: "{{mig_product}}/repository/conf/api-manager.xml"
+      regexp: '<GatewayType>Synapse</GatewayType>'
+      replace: '<GatewayType>None</GatewayType>'
+      backup: no
+
+#-------------------Change EnableThriftServer to false------------------
+  - name: KM configurations in MIG - Change EnableThriftServer to false in repository/conf/api-manager.xml
+    replace:
+      dest: "{{mig_product}}/repository/conf/api-manager.xml"
+      regexp: '<EnableThriftServer>true</EnableThriftServer>'
+      replace: '<EnableThriftServer>false</EnableThriftServer>'
+      backup: no
+
+#-------------------Copy user-mgt.xml------------------
+  - name: KM configurations in MIG - copying user-mgt.xml to hub to IS
+    copy:
+     src: "user-mgt.xml"
+     dest: "{{mig_product}}/repository/conf"
+
+#-------------------Copy registry.xml------------------
+  - name: KM configurations in MIG - copying registry.xml to hub to IS
+    copy:
+     src: "registry.xml"
+     dest: "{{mig_product}}/repository/conf"
+
+#-------------------Change dbConfig sharedregistry to govregistry ------------------
+  - name: KM configurations in MIG - Change dbConfig sharedregistry to govregistry repository/conf/registry.xml
+    replace:
+      dest: "{{mig_product}}/repository/conf/registry.xml"
+      regexp: 'hubadmin'
+      replace: '{{mysql_user}}'
+      backup: no
+
+  - name: KM configurations in MIG - Change dbConfig sharedregistry to govregistry repository/conf/registry.xml
+    replace:
+      dest: "{{mig_product}}/repository/conf/registry.xml"
+      regexp: '3306'
+      replace: '{{mysql_port}}'
+      backup: no
+
+  - name: KM configurations in MIG - Change dbConfig sharedregistry to govregistry repository/conf/registry.xml
+    replace:
+      dest: "{{mig_product}}/repository/conf/registry.xml"
+      regexp: 'localhost'
+      replace: '{{mysql_host}}'
+      backup: no
+
+  - name: KM configurations in MIG - Change dbConfig hub_regdb210 to prodregdb repository/conf/registry.xml
+    replace:
+      dest: "{{mig_product}}/repository/conf/registry.xml"
+      regexp: 'hub_regdb210'
+      replace: 'prodregdb'
+      backup: no
+
+#-------------------Add cache id to registry.xml------------------
+  - name: KM configurations in MIG - Change sharedregistry to   govregistry in registry.xml file
+    replace:
+      dest: "{{mig_product}}/repository/conf/registry.xml"
+      regexp: 'sharedregistry'
+      replace: 'govregistry'
+      backup: no
+
+#-------------------Uncomment ClaimsRetrieverImplClass tag in api-manager.xml------------------
+  - name: KM configurations in MIG - Uncomment ClaimsRetrieverImplClass tag in api-manager.xml
+    replace:
+      dest: "{{mig_product}}/repository/conf/api-manager.xml"
+      regexp: '<!--ClaimsRetrieverImplClass'
+      replace: '<ClaimsRetrieverImplClass'
+      backup: no
+
+  - name: KM configurations in MIG - Uncomment ClaimsRetrieverImplClass tag in api-manager.xml
+    replace:
+      dest: "{{mig_product}}/repository/conf/api-manager.xml"
+      regexp: 'ClaimsRetrieverImplClass-->'
+      replace: 'ClaimsRetrieverImplClass>'
+      backup: no
+
+#-------------------Uncomment SignatureAlgorithm tag in api-manager.xml------------------
+  - name: KM configurations in MIG - Uncomment SignatureAlgorithm tag in api-manager.xml
+    replace:
+      dest: "{{mig_product}}/repository/conf/api-manager.xml"
+      regexp: '<!--SignatureAlgorithm'
+      replace: '<SignatureAlgorithm'
+      backup: no
+
+  - name: KM configurations in MIG - Uncomment SignatureAlgorithm tag in api-manager.xml
+    replace:
+      dest: "{{mig_product}}/repository/conf/api-manager.xml"
+      regexp: 'SignatureAlgorithm-->'
+      replace: 'SignatureAlgorithm>'
+      backup: no
+
+#-------------------Uncomment ConsumerDialectURI tag in api-manager.xml------------------
+  - name: KM configurations in MIG - Uncomment ConsumerDialectURI tag in api-manager.xml
+    replace:
+      dest: "{{mig_product}}/repository/conf/api-manager.xml"
+      regexp: '<!--ConsumerDialectURI'
+      replace: '<ConsumerDialectURI'
+      backup: no
+
+  - name: KM configurations in MIG - Uncomment ConsumerDialectURI tag in api-manager.xml
+    replace:
+      dest: "{{mig_product}}/repository/conf/api-manager.xml"
+      regexp: 'ConsumerDialectURI-->'
+      replace: 'ConsumerDialectURI>'
+      backup: no
+
+#-------------------Uncomment EnableJWTGeneration tag in api-manager.xml------------------
+  - name: KM configurations in MIG - Uncomment EnableJWTGeneration tag in api-manager.xml
+    replace:
+      dest: "{{mig_product}}/repository/conf/api-manager.xml"
+      regexp: '<!-- EnableJWTGeneration>false</EnableJWTGeneration-->'
+      replace: '<EnableJWTGeneration>true</EnableJWTGeneration>'
+      backup: no
+
+#-------------------Set Signature Algorithm to none------------------
+  - name: KM configurations in MIG - Set Signature Algorithm to none in api-manager.xml
+    replace:
+      dest: "{{mig_product}}/repository/conf/api-manager.xml"
+      regexp: 'SignatureAlgorithm>SHA256withRSA<'
+      replace: 'SignatureAlgorithm>NONE<'
+      backup: no
+
+#-------------------Change datasource in identity.xml------------------
+  - name: KM configurations in MIG - Change datasource in repository/conf/identity/identity.xml
+    replace:
+      dest: "{{mig_product}}/repository/conf/identity/identity.xml"
+      regexp: 'WSO2IDENTITY_DB'
+      replace: 'WSO2AM_DB'
+      backup: no
+    ignore_errors: True
+
+
+##-------------------Start IS server----------------
+#  - name: Start IS with Key Manager
+#    shell: "{{mig_product}}/bin/./wso2server.sh restart"
+#    ignore_errors: True
+#
+##-------------------Wait for server to start-------------------
+#  - name: Wait for server to start
+#    wait_for:
+#      port: "{{(https_port|int)+(mig_offset|int)}}"
+#      delay: 10
+#    ignore_errors: True

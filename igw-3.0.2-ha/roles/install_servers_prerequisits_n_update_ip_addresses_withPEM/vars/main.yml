@@ -1,0 +1,27 @@
+---
+# vars file for aws_automation
+## Update the following arrays with the intances you need to start
+
+AM_server_1_ip: 13.58.109.76
+AM_server_2_ip: 13.58.196.237
+Gateway_domain_name: am.com
+Portal_domain_name: am.com
+
+MIG_server_1_ip: 52.14.47.199
+MIG_server_2_ip: 13.58.127.130
+MIG_domain_name: mig.com
+
+DAS_server_1_ip: 13.58.96.98
+DAS_server_1_private_ip: 172.31.20.174
+DAS_server_2_ip: 18.219.182.133
+DAS_server_2_private_ip: 172.31.17.214
+DAS_domain_name: das.com
+
+DB_server_M_ip: 18.191.4.100
+DB_server_S_ip: 13.59.214.173
+DB_domain_name: db.com
+
+nginx_server: 18.222.49.239
+ansible_user: centos
+
+pem_file_location: testing-key-ohio.pem

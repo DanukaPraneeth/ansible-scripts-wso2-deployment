@@ -1,0 +1,66 @@
+---
+  - set_fact:
+     mig_product: "wso2telcoids-{{mig_version}}"
+     hub_product: "wso2telcohub-{{hub_product_version}}"
+
+#-------------------Extract wso2telcoids-2.0.2-SNAPSHOT-------------------
+  - unarchive:
+     src: "{{mig_zip_location}}/{{mig_product}}.zip"
+     dest: "{{mig_extract_location}}"
+     copy: no
+
+#-------------------check db exists and run db scripts-------------------
+#-------------------Setup Identity db-----------------
+  - name: MIG DB configurations - run the prodapimgtdb database script
+    shell: mysql -uroot -p{{mysql_root_pass}}  < "{{mig_extract_location}}/{{mig_product}}/dbscripts/ids/mig_identity_mysql-5.7.sql"
+    when: import_dbs == "yes"
+
+  - name: MIG DB configurations - Change sql mode set sql_mode="";
+    shell: mysql -uroot -p{{mysql_root_pass}} -e "SET GLOBAL sql_mode = ''; "
+
+  - name: MIG DB configurations - Import DB
+    shell: mysql -uroot -p{{mysql_root_pass}}  < "{{mig_extract_location}}/{{mig_product}}/dbscripts/ids/mig_connectdb.sql"
+    when: import_dbs == "yes"
+
+  - name: MIG DB configurations - Import DB
+    shell: mysql -uroot -p{{mysql_root_pass}}  < "{{mig_extract_location}}/{{mig_product}}/dbscripts/ids/mig_regdb.sql"
+    when: import_dbs == "yes"
+
+  - name: MIG DB configurations - Import DB
+    shell: mysql -uroot -p{{mysql_root_pass}}  < "{{mig_extract_location}}/{{mig_product}}/dbscripts/ids/mig_userdb.sql"
+    when: import_dbs == "yes"
+
+#-------------------Setup User Manager database------------------
+  - name: MIG DB configurations - grant permission to prodUMdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON prodUMdb.* TO '{{is_mysql_user}}'@'{{is_host_1}}' IDENTIFIED BY "{{is_mysql_password}}";'
+    when: import_dbs == "yes"
+
+#-------------------Setup API Manager statistics db------------------
+  - name: MIG DB configurations - grant permission to prodapimgtdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON prodapimgtdb.* TO '{{is_mysql_user}}'@'{{is_host_1}}' IDENTIFIED BY "{{is_mysql_password}}";'
+    when: import_dbs == "yes"
+
+#-------------------Setup API Manager registry db------------------
+  - name: MIG DB configurations - grant permission to prodStatdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON prodregdb.* TO '{{is_mysql_user}}'@'{{is_host_1}}' IDENTIFIED BY "{{is_mysql_password}}";'
+    when: import_dbs == "yes"
+
+#-------------------Setup Identity db-----------------
+  - name: MIG DB configurations - grant permission to mig_identity database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON mig_identity.* TO '{{is_mysql_user}}'@'{{is_host_1}}' IDENTIFIED BY "{{is_mysql_password}}";'
+    when: import_dbs == "yes"
+
+#-------------------Setup MIG register statistics db------------------
+  - name: MIG DB configurations - grant permission to mig_regdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON mig_regdb.* TO '{{is_mysql_user}}'@'{{is_host_1}}' IDENTIFIED BY "{{is_mysql_password}}";'
+    when: import_dbs == "yes"
+
+#-------------------Setup MIG user statistics db------------------
+  - name: MIG DB configurations - grant permission to mig_userdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON mig_userdb.* TO '{{is_mysql_user}}'@'{{is_host_1}}' IDENTIFIED BY "{{is_mysql_password}}";'
+    when: import_dbs == "yes"
+
+#-------------------Setup MIG connect statistics db------------------
+  - name: MIG DB configurations - grant permission to mig_connectdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON mig_connectdb.* TO '{{is_mysql_user}}'@'{{is_host_1}}' IDENTIFIED BY "{{is_mysql_password}}";'
+    when: import_dbs == "yes"

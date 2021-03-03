@@ -1,0 +1,22 @@
+---
+
+#-------------------Run sandbox service------------------
+  - name: Run sandbox service
+    shell: sh {{extract_location}}/sandbox.sh start {{product_version}}
+    become: yes
+    ignore_errors: False
+
+#-------------------Wait for server to start-------------------
+  - name: Wait for server to start
+    wait_for:
+      port: 8181
+      delay: 10
+    ignore_errors: True
+
+#------------------Display the message to upload workflow .bar files --------------------------
+
+  - name: "--- PLEASE UPLOAD THE WORKFLOW BAR FILES TO THE ACTIVITI-EXPLORER OF THE  API MANAGER TO COMPLETE THE INTERNAL GATEWAY IMLEMENTATION---"
+    shell: echo "Playbook execution completed"
+
+  - name: "--- WORKFLOW BAR FILES LOCATION ( wso2telcohub-2.1.0 -> repository -> resources -> workflow -> ApplicationCreationApprovalWorkflow.bar & SubscriptionCreationApprovalWorkflow.bar ) ---"
+    shell: echo "Playbook execution completed"

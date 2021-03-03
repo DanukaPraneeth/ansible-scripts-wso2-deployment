@@ -1,0 +1,10 @@
+---
+
+
+mig_version: 2.2.0
+extract_location: /mnt
+zip_location: /mnt
+mig_offset: 0
+
+httpsPassword: wso2telco@123
+KeyAlias: celcomwso2telco

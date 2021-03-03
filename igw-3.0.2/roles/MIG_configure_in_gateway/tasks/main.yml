@@ -1,0 +1,109 @@
+---
+  - set_fact:
+      hub_product: "gateway/wso2telcohub-{{hub_version}}"
+      https_port: "9443"
+      http_port: "9763"
+
+#-------------------Copy registry.xml------------------
+  - name: mig configurations in am gateway - copying registry.xml
+    copy:
+     src: "registry.xml"
+     dest: "{{extract_location}}/{{hub_product}}/repository/conf"
+
+#-------------------Mysql Changes in registry.xml------------------
+  - name: mig configurations in am gateway - Change dbConfig sharedregistry to govregistry repository/conf/registry.xml
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/conf/registry.xml"
+      regexp: 'mysql_user'
+      replace: '{{mysql_user}}'
+      backup: yes
+
+  - name: mig configurations in am gateway - Change dbConfig sharedregistry to govregistry repository/conf/registry.xml
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/conf/registry.xml"
+      regexp: 'mysql_port'
+      replace: '{{mysql_port}}'
+      backup: yes
+
+  - name: mig configurations in am gateway - Change dbConfig sharedregistry to govregistry repository/conf/registry.xml
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/conf/registry.xml"
+      regexp: 'mysql_host'
+      replace: '{{mysql_host}}'
+      backup: yes
+
+#-------------------Change dbConfig sharedregistry to govregistry ------------------
+  - name: mig configurations in am gateway - Change dbConfig sharedregistry to govregistry repository/conf/registry.xml
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/conf/registry.xml"
+      regexp: 'sharedregistry'
+      replace: 'govregistry'
+      backup: yes
+
+#-------------------Change offset---------------------------
+#-------------------Copy api-manager.xml to hub-------------------
+  - name: mig configurations in am gateway - copying api-manager.xml to repository/conf
+    copy:
+     src: "api-manager.xml"
+     dest: "{{extract_location}}/{{hub_product}}/repository/conf/api-manager.xml"
+
+#-------------------Point AuthManager and APIKeyValidator to IS------------------
+
+#------ replacing the port and the IP  with the DNS name ----------------
+
+  - name: mig configurations in am gateway - Point AuthManager and APIKeyValidator to IS
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/conf/api-manager.xml"
+      regexp: 'IS_NAME'
+      replace: '{{is_name}}'
+      backup: yes
+
+#-------------------Change KeyValidatorClientType in api-manager.xml in hub------------------
+  - name: mig configurations in am gateway - Change KeyValidatorClientType in api-manager.xml in hub
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/conf/api-manager.xml"
+      regexp: '<KeyValidatorClientType>ThriftClient</KeyValidatorClientType>'
+      replace: '<KeyValidatorClientType>WSClient</KeyValidatorClientType>'
+      backup: yes
+
+#-------------------Change EnableThriftServer to false in api-manager.xml in hub------------------
+  - name: mig configurations in am gateway - Change EnableThriftServer in api-manager.xml in hub
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/conf/api-manager.xml"
+      regexp: '<EnableThriftServer>true</EnableThriftServer>'
+      replace: '<EnableThriftServer>false</EnableThriftServer>'
+      backup: yes
+
+#-------------------Point AuthorizedAPI, RevokeAPI and TokenAPI to IS------------------
+  - name: mig configurations in am gateway - Point AuthorizedAPI to IS
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/deployment/server/synapse-configs/default/api/_AuthorizeAPI_.xml"
+      regexp: 'https://{uri.var.hostname}:{uri.var.portnum}'
+      replace: 'https://{{is_name}}'
+      backup: yes
+
+  - name: mig configurations in am gateway - Point RevokeAPI to IS
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/deployment/server/synapse-configs/default/api/_RevokeAPI_.xml"
+      regexp: 'https://{uri.var.hostname}:{uri.var.portnum}'
+      replace: 'https://{{is_name}}'
+      backup: yes
+
+  - name: mig configurations in am gateway - Point TokenAPI to IS
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/deployment/server/synapse-configs/default/api/_TokenAPI_.xml"
+      regexp: 'https://{uri.var.hostname}:{uri.var.portnum}'
+      replace: 'https://{{is_name}}'
+      backup: yes
+
+#-------------------Start the identity server-------------------
+  - name: mig configurations in am gateway - Start API Manager
+    shell: "{{extract_location}}/{{hub_product}}/bin/./wso2server.sh start"
+    ignore_errors: True
+
+#-------------------Wait for server to start-------------------
+  - name: mig configurations in am gateway - Wait for server to start
+    wait_for:
+      port: "{{(https_port|int)+(gateway_offset|int)}}"
+      delay: 5
+    ignore_errors: False

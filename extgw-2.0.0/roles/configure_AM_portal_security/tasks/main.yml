@@ -1,0 +1,136 @@
+---
+  - set_fact:
+     portal_location: "{{extract_location}}/portal"
+
+#-------------------Remove the existing certificate files-------------------
+  - name: AM https, patch configuration for portal - Remove the existing wso2carbon.jks file before copying the new certificate file
+    file:
+      path: "{{portal_location}}/wso2telcohub-{{product_version}}/repository/resources/security/wso2carbon.jks"
+      state: absent
+    ignore_errors: False
+
+#-------------------Copy the certificate files-------------------
+  - name: AM https, patch configuration for portal - copying certificate file - wso2carbon.jks
+    copy:
+     src: "wso2carbon.jks"
+     dest: "{{portal_location}}/wso2telcohub-{{product_version}}/repository/resources/security/"
+    ignore_errors: False
+
+#-------------------Remove the existing certificate files-------------------
+  - name: AM https, patch configuration for portal - Remove the existing client-truststore.jks file before copying the new certificate file
+    file:
+      path: "{{portal_location}}/wso2telcohub-{{product_version}}/repository/resources/security/client-truststore.jks"
+      state: absent
+    ignore_errors: False
+
+#-------------------Copy the certificate files-------------------
+  - name: AM https, patch configuration for portal - copying certificate file - client-truststore.jks
+    copy:
+     src: "client-truststore.jks"
+     dest: "{{portal_location}}/wso2telcohub-{{product_version}}/repository/resources/security/"
+    ignore_errors: False
+
+#-------------------Copy broker.xml-------------------
+  - name: AM https, patch configuration for portal - copying broker.xml to repository/conf
+    copy:
+     src: "hub-broker.xml"
+     dest: "{{portal_location}}/wso2telcohub-{{product_version}}/repository/conf/broker.xml"
+
+#-------------------Change analytics-datasources.xml.xml-------------------
+  - name: AM https, patch configuration for portal - configure AMQP and MQTT transports
+    replace:
+      dest: "{{portal_location}}/wso2telcohub-{{product_version}}/repository/conf/broker.xml"
+      regexp: '{password}'
+      replace: '{{httpsPassword}}'
+      backup: no
+
+#------------------------Configuring keystores for Jaggery Apps SSO configuration in site.json--------------
+  - name: AM https, patch configuration for portal - Configuring keystores for Jaggery Apps SSO configuration in site.json - keyStorePassword
+    replace:
+      dest: "{{portal_location}}/wso2telcohub-{{product_version}}/repository/deployment/server/jaggeryapps/publisher/site/conf/site.json"
+      regexp: '"keyStorePassword" : "",'
+      replace: '"keyStorePassword" : "{{httpsPassword}}",'
+      backup: no
+
+  - name: AM https, patch configuration for portal - Configuring keystores for Jaggery Apps SSO configuration in site.json - identityAlias
+    replace:
+      dest: "{{portal_location}}/wso2telcohub-{{product_version}}/repository/deployment/server/jaggeryapps/publisher/site/conf/site.json"
+      regexp: '"identityAlias" : "",'
+      replace: '"identityAlias" : "{{KeyAlias}}",'
+      backup: no
+
+  - name: AM https, patch configuration for portal - Configuring keystores for Jaggery Apps SSO configuration in site.json
+    replace:
+      dest: "{{portal_location}}/wso2telcohub-{{product_version}}/repository/deployment/server/jaggeryapps/publisher/site/conf/site.json"
+      regexp: '"keyStoreName" :"",'
+      replace: '"keyStoreName" :"wso2carbon.jks",'
+      backup: no
+
+#--------------------------- configuring keystores for security in identity.xml--------------------------------
+  - name: AM https, patch configuration for portal - Configuring keystores for security in identity.xml
+    replace:
+      dest: "{{portal_location}}/wso2telcohub-{{product_version}}/repository/conf/identity/identity.xml"
+      regexp: '<Password>wso2carbon</Password>'
+      replace: '<Password>{{httpsPassword}}</Password>'
+      backup: no
+
+#------------------------------Configuring keystores for endpoints--------------------
+  - name: AM https, patch configuration for portal - Configuring keystores for endpoints EndpointConfig.properties
+    replace:
+      dest: "{{portal_location}}/wso2telcohub-{{product_version}}/repository/conf/identity/EndpointConfig.properties"
+      regexp: 'Carbon.Security.KeyStore.Password=wso2carbon'
+      replace: 'Carbon.Security.KeyStore.Password={{httpsPassword}}'
+      backup: no
+
+  - name: AM https, patch configuration for portal - Configuring keystores for endpoints EndpointConfig.properties
+    replace:
+      dest: "{{portal_location}}/wso2telcohub-{{product_version}}/repository/conf/identity/EndpointConfig.properties"
+      regexp: 'Carbon.Security.TrustStore.Password=wso2carbon'
+      replace: 'Carbon.Security.TrustStore.Password={{httpsPassword}}'
+      backup: no
+
+#----------------------Configuring keystores in carbon.xml----------------------------------------
+  - name: AM https, patch configuration for portal - Configuring keystores in carbon.xml - Password
+    replace:
+      dest: "{{portal_location}}/wso2telcohub-{{product_version}}/repository/conf/carbon.xml"
+      regexp: '<Password>wso2carbon</Password>'
+      replace: '<Password>{{httpsPassword}}</Password>'
+      backup: no
+
+  - name: AM https, patch configuration for portal - Configuring keystores in carbon.xml - KeyAlias
+    replace:
+      dest: "{{portal_location}}/wso2telcohub-{{product_version}}/repository/conf/carbon.xml"
+      regexp: '<KeyAlias>wso2carbon</KeyAlias>'
+      replace: '<KeyAlias>{{KeyAlias}}</KeyAlias>'
+      backup: no
+
+  - name: AM https, patch configuration for portal - Configuring keystores in carbon.xml - KeyPassword
+    replace:
+      dest: "{{portal_location}}/wso2telcohub-{{product_version}}/repository/conf/carbon.xml"
+      regexp: '<KeyPassword>wso2carbon</KeyPassword>'
+      replace: '<KeyPassword>{{httpsPassword}}</KeyPassword>'
+      backup: no
+
+#----------------------Configuring keystores in axis2.xml----------------------------------------
+  - name: AM https, patch configuration for portal - Configuring keystores in axis2.xml - Password
+    replace:
+      dest: "{{portal_location}}/wso2telcohub-{{product_version}}/repository/conf/axis2/axis2.xml"
+      regexp: '<Password>wso2carbon</Password>'
+      replace: '<Password>{{httpsPassword}}</Password>'
+      backup: no
+
+  - name: AM https, patch configuration for portal - Configuring keystores in axis2.xml - KeyPassword
+    replace:
+      dest: "{{portal_location}}/wso2telcohub-{{product_version}}/repository/conf/axis2/axis2.xml"
+      regexp: '<KeyPassword>wso2carbon</KeyPassword>'
+      replace: '<KeyPassword>{{httpsPassword}}</KeyPassword>'
+      backup: no
+
+
+#----------------------Configuring keystores in catalina-server.xml----------------------------------------
+  - name: AM https, patch configuration for portal - Configuring keystores in catalina-server.xml
+    replace:
+      dest: "{{portal_location}}/wso2telcohub-{{product_version}}/repository/conf/tomcat/catalina-server.xml"
+      regexp: 'keystorePass="wso2carbon"'
+      replace: 'keystorePass="{{httpsPassword}}"'
+      backup: no

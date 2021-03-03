@@ -1,0 +1,17 @@
+---
+#-------------------Start the identity server-------------------
+
+  - name: download the wso2 esb to the mediation servers
+    get_url:
+      url: "{{esb_downloadlink}}"
+      dest: "{{extract_location}}/wso2esb-{{esb_version}}.zip"
+      mode: 0755
+
+
+#-------------------Start the identity server-------------------
+
+  - name: download the wso2 API manager to the AM servers
+    get_url:
+      url: "{{mediation_downloadlink}}"
+      dest: "{{extract_location}}/wso2telco_ext_gw_mediation-{{telco_mediation_version}}.zip"
+      mode: 0755

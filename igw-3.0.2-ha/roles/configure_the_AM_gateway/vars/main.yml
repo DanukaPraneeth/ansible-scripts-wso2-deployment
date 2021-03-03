@@ -1,0 +1,21 @@
+---
+# CHANGE THE FOLLOWING PROPERTIES ACCORDINGLY
+
+# host of mysql server
+mysql_host: db.com
+mysql_user: am_user
+mysql_password: AM_user@123
+
+wso2_mail_address: jenkinsnotifications@wso2telco.com
+wso2_mail_password: jenkin@123
+
+#DO NOT CHANGE THE PORT VALUES. CHANGE THE PORT VALUE USING THE VARIBLE OFFSET
+zip_location: /mnt
+extract_location: /mnt      # give the same extract loacation as in the role, 'download_AM_for_server'
+product_version: 3.0.2
+offset: 0
+
+deployment_type: internal_gateway_type2
+java_home: /usr
+export_java: "yes"
+

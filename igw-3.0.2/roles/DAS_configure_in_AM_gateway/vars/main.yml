@@ -1,0 +1,7 @@
+---
+
+product_version: 3.0.2
+gateway_home: /mnt
+hub_offset: 0
+
+Operator: OPERATOR1           # Operator name to be placed at WSO2AM--Ext--Out.xml for analytics

@@ -1,0 +1,9 @@
+---
+# CHANGE THE FOLLOWING PROPERTIES ACCORDINGLY
+
+
+extract_location: /mnt      # give the same extract loacation as in the role, 'download_AM_for_server'
+product_version: 2.1.0
+
+httpsPassword: wso2telco@123
+KeyAlias: ncelwso2telco

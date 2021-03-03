@@ -1,0 +1,18 @@
+---
+
+  - set_fact:
+     hub_product: "wso2telcohub-{{hub_product_version}}"
+
+#----------------------- manageapp_permission_tree script execution  ---------------------------------
+
+  - name: HUB DB configurations - Edit the manageapp_permission_tree.sql with db name
+    replace:
+      dest: "{{hub_extract_location}}/{{hub_product}}/dbscripts/dep-hub/mysql/manageapp_permission_tree.sql"
+      regexp: 'YOUR_REG_DB_NAME'
+      replace: 'prodregdb'
+      backup: yes
+
+
+  - name: HUB DB configurations - run the /manageapp_permission_tree script
+    shell: mysql -uroot -p{{mysql_root_pass}} -D prodapimgtdb -e 'SOURCE {{hub_extract_location}}/{{hub_product}}/dbscripts/dep-hub/mysql/manageapp_permission_tree.sql'
+    when: import_dbs == "yes"

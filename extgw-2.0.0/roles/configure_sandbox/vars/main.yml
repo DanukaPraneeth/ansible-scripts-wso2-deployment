@@ -1,0 +1,14 @@
+# COMPULSORY TO CHANGE FOLLOWING PROPERTIES
+
+# host of mysql server
+mysql_host: db.com
+mysql_user: sandbox_user
+mysql_password: SANDBOX_user@123
+
+zip_location: /mnt
+extract_location: /mnt
+
+# Log file location
+log_location: /mnt
+
+product_version: 1.7.1

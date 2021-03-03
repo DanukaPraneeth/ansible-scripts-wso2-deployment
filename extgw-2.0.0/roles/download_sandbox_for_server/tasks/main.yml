@@ -1,0 +1,14 @@
+---
+#-------------------Copy the sandbox product-------------------
+
+  - name: download the sandbox to the mediation servers
+    get_url:
+      url: "{{sandbox_url}}"
+      dest: "{{extract_location}}/sandbox-service-bin-{{product_version}}.zip"
+      mode: 0755
+
+#-------------------Copy the sandbox start script-------------------
+  - name: copy the sandbox script to the mediation servers
+    copy:
+      src: "sandbox.sh"
+      dest: "{{extract_location}}"

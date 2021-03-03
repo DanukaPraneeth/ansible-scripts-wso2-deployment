@@ -1,0 +1,122 @@
+---
+  - set_fact:
+     pack_name: "wso2telcohub-{{product_version}}"
+
+#------------------- Create rsync folders --------------------------
+  - name: Configure rsync - Creates directory for rsync scripts
+    file: path="{{rsync_folder}}" state=directory
+
+  - name: Configure rsync - Creates directory /var/carbon-rsync-logs
+    file: path=/var/carbon-rsync-logs state=directory
+
+  - name: Configure rsync - Creates directory /var/rsync
+    file: path=/var/rsync state=directory
+
+#-------------------Copy the files-------------------
+  - name: Configure rsync - copying rsync-for-carbon-depsync.sh file
+    copy:
+     src: "rsync-for-carbon-depsync.sh"
+     dest: "{{rsync_folder}}"
+    ignore_errors: False
+
+#------------------------------Configuring rsync-for-carbon-depsync.sh--------------------
+  - name: Configure rsync - Configuring local portal location for endpoints Ersync-for-carbon-depsync.sh
+    replace:
+      dest: "{{rsync_folder}}/rsync-for-carbon-depsync.sh"
+      regexp: 'REMOTE_SH_PATH'
+      replace: '{{rsync_folder}}'
+      backup: no
+
+  - name: Configure rsync - Configuring local portal location for endpoints Ersync-for-carbon-depsync.sh
+    replace:
+      dest: "{{rsync_folder}}/rsync-for-carbon-depsync.sh"
+      regexp: 'MY_PORTAL_LOCATION'
+      replace: '{{portal_location}}/{{pack_name}}'
+      backup: no
+
+  - name: Configure rsync - Configuring local gateway location for endpoints Ersync-for-carbon-depsync.sh
+    replace:
+      dest: "{{rsync_folder}}/rsync-for-carbon-depsync.sh"
+      regexp: 'MY_GATEWAY_LOCATION'
+      replace: '{{gateway_location}}/{{pack_name}}'
+      backup: no
+
+  - name: Configure rsync - Configuring host_ip for endpoints Ersync-for-carbon-depsync.sh
+    replace:
+      dest: "{{rsync_folder}}/rsync-for-carbon-depsync.sh"
+      regexp: 'MY_IP'
+      replace: '{{host_ip}}'
+      backup: no
+
+#-----------------------------------------------------------
+  - name: Configure rsync - copying rsync-for-carbon-depsync-remote.sh
+    copy:
+     src: "rsync-for-carbon-depsync-remote.sh"
+     dest: "{{rsync_folder}}"
+    ignore_errors: False
+
+  - name: Configure rsync - Configuring remote host_ip for rsync-for-carbon-depsync-remote.sh
+    replace:
+      dest: "{{rsync_folder}}/rsync-for-carbon-depsync-remote.sh"
+      regexp: 'REMOTE_IP'
+      replace: '{{remote_host_ip}}'
+      backup: no
+
+  - name: Configure rsync - Configuring local portal location for endpoints rsync-for-carbon-depsync-remote.sh
+    replace:
+      dest: "{{rsync_folder}}/rsync-for-carbon-depsync-remote.sh"
+      regexp: 'MY_PORTAL_LOCATION'
+      replace: '{{portal_location}}/{{pack_name}}'
+      backup: no
+
+  - name: Configure rsync - Configuring local portal location for endpoints rsync-for-carbon-depsync-remote.sh
+    replace:
+      dest: "{{rsync_folder}}/rsync-for-carbon-depsync-remote.sh"
+      regexp: 'REMOTE_PORTAL_LOCATION'
+      replace: '{{remote_portal_location}}/{{pack_name}}'
+      backup: no
+
+  - name: Configure rsync - Configuring local portal location for endpoints rsync-for-carbon-depsync-remote.sh
+    replace:
+      dest: "{{rsync_folder}}/rsync-for-carbon-depsync-remote.sh"
+      regexp: 'USER'
+      replace: '{{remote_login_user}}'
+      backup: no
+
+#-------------------- Install incron----------------
+
+  - name: Update YUM with os repo repo
+    shell: "rpm -Uvh {{RH7}}"
+    ignore_errors: no
+
+  - name: Update YUM with os repo repo
+    shell: sudo yum -y install incron
+    ignore_errors: no
+
+  - name: Copy incron.allow file
+    template:
+      src: incron.allow
+      dest: /etc/incron.allow
+      owner: root
+      group: root
+    become: yes
+    ignore_errors: no
+
+  - name: Grant permission for the script
+    shell: "sudo chmod +x {{rsync_folder}}/rsync-for-carbon-depsync.sh"
+    ignore_errors: no
+
+  - name: Grant permission for the script
+    shell: "sudo chmod +x {{rsync_folder}}/rsync-for-carbon-depsync-remote.sh"
+    ignore_errors: no
+
+  - name: Kill any prevoius cron jobs
+    shell: incrond kill
+    ignore_errors: no
+
+#  - incron:
+#      name: "Run the rsync script"
+#      user: "root"
+#      job: "{{portal_location}}/{{pack_name}}/repository/deployment/server/synapse-configs/default/api/ IN_MODIFY,IN_ATTRIB,IN_CREATE,IN_DELETE {{rsync_folder}}/rsync-for-carbon-depsync.sh"
+#    ignore_errors: no
+#

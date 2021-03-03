@@ -1,0 +1,97 @@
+---
+  - set_fact:
+     mig_product: "wso2telcoids-{{mig_version}}"
+     hub_product: "wso2telcohub-{{hub_product_version}}"
+
+#-------------------Extract wso2telcohub-2.1.5-SNAPSHOT-------------------
+  - unarchive:
+     src: "{{hub_zip_location}}/{{hub_product}}.zip"
+     dest: "{{hub_extract_location}}/"
+     copy: no
+
+#-------------------Setup API Manager database------------------
+  - name: HUB DB configurations - create the prodapimgtdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'CREATE DATABASE prodapimgtdb;'
+    when: import_dbs == "yes"
+
+  - name: HUB DB configurations - run the prodapimgtdb database script
+    shell: mysql -uroot -p{{mysql_root_pass}} -D prodapimgtdb -e 'SOURCE {{hub_extract_location}}/{{hub_product}}/dbscripts/apimgt/mysql5.7.sql'
+    when: import_dbs == "yes"
+
+  - name: HUB DB configurations - grant permission to prodapimgtdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON prodapimgtdb.* TO '{{hub_mysql_user}}'@'{{hub_host_1}}' IDENTIFIED BY "{{hub_mysql_password}}";'
+    when: import_dbs == "yes"
+
+#-------------------Setup User Manager database------------------
+  - name: HUB DB configurations - create the prodUMdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'CREATE DATABASE prodUMdb;'
+    when: import_dbs == "yes"
+
+  - name: HUB DB configurations - run the prodUMdb database script
+    shell: mysql -uroot -p{{mysql_root_pass}} -D prodUMdb -e 'SOURCE {{hub_extract_location}}/{{hub_product}}/dbscripts/mysql5.7.sql;'
+    when: import_dbs == "yes"
+
+  - name: HUB DB configurations - grant permission to prodUMdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON prodUMdb.* TO '{{hub_mysql_user}}'@'{{hub_host_1}}' IDENTIFIED BY "{{hub_mysql_password}}";'
+    when: import_dbs == "yes"
+
+#-------------------Setup API Manager statistics db------------------
+  - name: HUB DB configurations - create the prodStatdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'CREATE DATABASE prodStatdb;'
+    when: import_dbs == "yes"
+
+  - name: HUB DB configurations - run the prodStatdb database script
+    shell: mysql -uroot -p{{mysql_root_pass}} -D prodStatdb -e 'SOURCE {{hub_extract_location}}/{{hub_product}}/dbscripts/dep-hub/mysql/stats_db.sql;'
+    when: import_dbs == "yes"
+
+  - name: HUB DB configurations - grant permission to prodStatdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON prodStatdb.* TO '{{hub_mysql_user}}'@'{{hub_host_1}}' IDENTIFIED BY "{{hub_mysql_password}}";'
+    when: import_dbs == "yes"
+
+#-------------------Setup DEP database------------------
+  - name: HUB DB configurations - create the proddepdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'CREATE DATABASE proddepdb;'
+    when: import_dbs == "yes"
+
+  - name: HUB DB configurations - run the proddepdb database script
+    shell: mysql -uroot -p{{mysql_root_pass}} -D proddepdb -e 'SOURCE {{hub_extract_location}}/{{hub_product}}/dbscripts/dep-hub/mysql/dep_db.sql;'
+    when: import_dbs == "yes"
+
+  - name: HUB DB configurations - grant permission to proddepdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON proddepdb.* TO '{{hub_mysql_user}}'@'{{hub_host_1}}' IDENTIFIED BY "{{hub_mysql_password}}";'
+    when: import_dbs == "yes"
+
+#-------------------Setup Registry Manager database------------------
+  - name: HUB DB configurations - create the prodregdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'CREATE DATABASE prodregdb;'
+    when: import_dbs == "yes"
+
+  - name: HUB DB configurations - run the prodregdb database script
+    shell: mysql -uroot -p{{mysql_root_pass}} -D prodregdb -e 'SOURCE {{hub_extract_location}}/{{hub_product}}/dbscripts/mysql5.7.sql;'
+    when: import_dbs == "yes"
+
+  - name: HUB DB configurations - grant permission to prodregdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON prodregdb.* TO '{{hub_mysql_user}}'@'{{hub_host_1}}' IDENTIFIED BY "{{hub_mysql_password}}";'
+    when: import_dbs == "yes"
+
+#-------------------Setup message broker database------------------
+  - name: HUB DB configurations - create the prodmbdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'CREATE DATABASE prodmbdb;'
+    when: import_dbs == "yes"
+
+  - name: HUB DB configurations - run the prodmbdb database script
+    shell: mysql -uroot -p{{mysql_root_pass}} -D prodmbdb -e 'SOURCE {{hub_extract_location}}/{{hub_product}}/dbscripts/mb-store/mysql-mb.sql;'
+    when: import_dbs == "yes"
+
+  - name: HUB DB configurations - grant permission to prodmbdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON prodmbdb.* TO '{{hub_mysql_user}}'@'{{hub_host_1}}' IDENTIFIED BY "{{hub_mysql_password}}";'
+    when: import_dbs == "yes"
+
+#-------------------Setup activity database------------------
+  - name: HUB DB configurations - create the prodactivitydb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'CREATE DATABASE prodactivitydb;'
+    when: import_dbs == "yes"
+
+  - name: HUB DB configurations - grant permission to prodactivitydb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON prodactivitydb.* TO '{{hub_mysql_user}}'@'{{hub_host_1}}'   IDENTIFIED BY "{{hub_mysql_password}}";'
+    when: import_dbs == "yes"

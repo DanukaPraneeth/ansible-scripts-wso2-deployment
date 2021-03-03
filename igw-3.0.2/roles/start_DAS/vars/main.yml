@@ -1,0 +1,6 @@
+---
+# COMPULSORY TO CHANGE FOLLOWING PROPERTIES
+
+analytics_version: 2.1.0
+analytic_extract_location: /mnt
+analytic_offset: 0

@@ -1,0 +1,94 @@
+---
+#   - name: install python pip on aws servers
+#     shell: ssh  "{{ansible_user}}"@"{{item}}" "sudo easy_install pip"
+#     with_items:
+#       - "{{AM_server_1_ip}}"
+#       - "{{MIG_server_1_ip}}"
+#       - "{{DAS_server_1_ip}}"
+#       - "{{DB_server_M_ip}}"
+#       - "{{AM_server_2_ip}}"
+#       - "{{MIG_server_2_ip}}"
+#       - "{{DAS_server_2_ip}}"
+# #      - "{{DB_server_S_ip}}"
+
+#   - name: install ansible on aws servers
+#     shell: ssh "{{ansible_user}}"@"{{item}}" "sudo pip install ansible"
+#     with_items:
+#       - "{{AM_server_1_ip}}"
+#       - "{{MIG_server_1_ip}}"
+#       - "{{DAS_server_1_ip}}"
+#       - "{{DB_server_M_ip}}"
+#       - "{{AM_server_2_ip}}"
+#       - "{{MIG_server_2_ip}}"
+#       - "{{DAS_server_2_ip}}"
+# #      - "{{DB_server_S_ip}}"
+
+
+  - name: Update the variables with newly created AM EC2 instance's IP address
+    local_action: lineinfile
+                  dest={{item.dest}}
+                  regexp={{item.regex}}
+                  insertafter={{item.insertafter}} line="{{item.line}}"
+    ignore_errors: True
+    with_items:
+      - { dest: "./roles/create_DB/vars/main.yml", regex: "hub_host_1:", insertafter: "hub_host_1:" , line: "hub_host_1:\ {{AM_server_1_ip}}"}
+      - { dest: "./roles/create_DB/vars/main.yml", regex: "hub_host_2:", insertafter: "hub_host_2:" , line: "hub_host_2:\ {{AM_server_2_ip}}"}
+      - { dest: "./roles/create_DB/vars/main.yml", regex: "is_host_1:", insertafter: "is_host_1:" , line: "is_host_1:\ {{MIG_server_1_ip}}"}
+      - { dest: "./roles/create_DB/vars/main.yml", regex: "is_host_2:", insertafter: "is_host_2:" , line: "is_host_2:\ {{MIG_server_2_ip}}"}
+      - { dest: "./roles/create_DB/vars/main.yml", regex: "das_host_1:", insertafter: "das_host_1:" , line: "das_host_1:\ {{DAS_server_1_ip}}"}
+      - { dest: "./roles/create_DB/vars/main.yml", regex: "das_host_2:", insertafter: "das_host_2:" , line: "das_host_2:\ {{DAS_server_2_ip}}"}
+
+      - { dest: "./roles/configure_the_AM_gateway/vars/main.yml", regex: "mysql_host:", insertafter: "mysql_host:" , line: "mysql_host:\ {{DB_domain_name}}"}
+      - { dest: "./roles/configure_the_AM_portal/vars/main.yml", regex: "mysql_host:", insertafter: "mysql_host:" , line: "mysql_host:\ {{DB_domain_name}}"}
+      - { dest: "./roles/configure_the_AM_portal/vars/main.yml", regex: "portal_host:", insertafter: "portal_host:" , line: "portal_host:\ {{Portal_domain_name}}"}
+
+      - { dest: "./roles/MIG_configure_in_gateway/vars/main.yml", regex: "mysql_host:", insertafter: "mysql_host:" , line: "mysql_host:\ {{DB_domain_name}}"}
+      - { dest: "./roles/MIG_configure_in_gateway/vars/main.yml", regex: "mig_host:", insertafter: "mig_host:" , line: "mig_host:\ {{MIG_domain_name}}"}
+      - { dest: "./roles/MIG_configure_in_gateway/vars/main.yml", regex: "gateway_host:", insertafter: "gateway_host:" , line: "gateway_host:\ {{Gateway_domain_name}}"}
+      - { dest: "./roles/MIG_configure_in_portal/vars/main.yml", regex: "mysql_host:", insertafter: "mysql_host:" , line: "mysql_host:\ {{DB_domain_name}}"}
+      - { dest: "./roles/MIG_configure_in_portal/vars/main.yml", regex: "portal_host:", insertafter: "portal_host:" , line: "portal_host:\ {{Portal_domain_name}}"}
+      - { dest: "./roles/MIG_configure_in_portal/vars/main.yml", regex: "gateway_host:", insertafter: "gateway_host:" , line: "gateway_host:\ {{Gateway_domain_name}}"}
+      - { dest: "./roles/MIG_configure_in_portal/vars/main.yml", regex: "mig_host:", insertafter: "mig_host:" , line: "mig_host:\ {{MIG_domain_name}}"}
+
+      - { dest: "./roles/configure_IGW_DAS/vars/main.yml", regex: "mysql_host:", insertafter: "mysql_host:" , line: "mysql_host:\ {{DB_domain_name}}"}
+      - { dest: "./roles/configure_IGW_DAS/vars/main.yml", regex: "DAS_domain_name:", insertafter: "DAS_domain_name:" , line: "DAS_domain_name:\ {{DAS_domain_name}}"}
+
+      - { dest: "./roles/configure_IGW_DAS_1_clustering/vars/main.yml", regex: "DAS_domain_name:", insertafter: "DAS_domain_name:" , line: "DAS_domain_name:\ {{DAS_domain_name}}"}
+      - { dest: "./roles/configure_IGW_DAS_1_clustering/vars/main.yml", regex: "node1_IP:", insertafter: "node1_IP:" , line: "node1_IP:\ {{DAS_server_1_ip}}"}
+      - { dest: "./roles/configure_IGW_DAS_1_clustering/vars/main.yml", regex: "node_private_IP:", insertafter: "node_private_IP:" , line: "node_private_IP:\ {{DAS_server_1_private_ip}}"}
+      - { dest: "./roles/configure_IGW_DAS_1_clustering/vars/main.yml", regex: "node2_IP:", insertafter: "node2_IP:" , line: "node2_IP:\ {{DAS_server_2_ip}}"}
+
+      - { dest: "./roles/configure_IGW_DAS_2_clustering/vars/main.yml", regex: "DAS_domain_name:", insertafter: "DAS_domain_name:" , line: "DAS_domain_name:\ {{DAS_domain_name}}"}
+      - { dest: "./roles/configure_IGW_DAS_2_clustering/vars/main.yml", regex: "node1_IP:", insertafter: "node1_IP:" , line: "node1_IP:\ {{DAS_server_2_ip}}"}
+      - { dest: "./roles/configure_IGW_DAS_2_clustering/vars/main.yml", regex: "node_private_IP:", insertafter: "node_private_IP:" , line: "node_private_IP:\ {{DAS_server_2_private_ip}}"}
+      - { dest: "./roles/configure_IGW_DAS_2_clustering/vars/main.yml", regex: "node2_IP:", insertafter: "node2_IP:" , line: "node2_IP:\ {{DAS_server_1_ip}}"}
+
+      - { dest: "./roles/configure_the_MIG/vars/main.yml", regex: "mysql_host:", insertafter: "mysql_host:" , line: "mysql_host:\ {{DB_domain_name}}"}
+      - { dest: "./roles/configure_the_MIG/vars/main.yml", regex: "mig_host:", insertafter: "mig_host:" , line: "mig_host:\ {{MIG_domain_name}}"}
+
+      - { dest: "./roles/km_configuration_in_MIG/vars/main.yml", regex: "mysql_host:", insertafter: "mysql_host:" , line: "mysql_host:\ {{DB_domain_name}}"}
+      - { dest: "./roles/km_configuration_in_MIG/vars/main.yml", regex: "mig_host:", insertafter: "mig_host:" , line: "mig_host:\ {{MIG_domain_name}}"}
+
+      - { dest: "./roles/download_configure_nginx/vars/main.yml", regex: "mig_ip_1:", insertafter: "mig_ip_1:" , line: "mig_ip_1:\ {{MIG_server_1_ip}}"}
+      - { dest: "./roles/download_configure_nginx/vars/main.yml", regex: "mig_ip_2:", insertafter: "mig_ip_2:" , line: "mig_ip_2:\ {{MIG_server_2_ip}}"}
+
+      - { dest: "./roles/configure_rsync_server1/vars/main.yml", regex: "host_ip:", insertafter: "host_ip:" , line: "host_ip:\ {{AM_server_1_ip}}"}
+      - { dest: "./roles/configure_rsync_server1/vars/main.yml", regex: "remote_host_ip:", insertafter: "remote_host_ip:" , line: "remote_host_ip:\ {{AM_server_2_ip}}"}
+      - { dest: "./roles/configure_rsync_server2/vars/main.yml", regex: "host_ip:", insertafter: "host_ip:" , line: "host_ip:\ {{AM_server_2_ip}}"}
+      - { dest: "./roles/configure_rsync_server2/vars/main.yml", regex: "remote_host_ip:", insertafter: "remote_host_ip:" , line: "remote_host_ip:\ {{AM_server_1_ip}}"}
+
+      - { dest: "./roles/configure_the_AM1_clustering/vars/main.yml", regex: "am_host:", insertafter: "am_host:" , line: "am_host:\ {{Gateway_domain_name}}"}
+      - { dest: "./roles/configure_the_AM1_clustering/vars/main.yml", regex: "local_IP:", insertafter: "local_IP:" , line: "local_IP:\ {{AM_server_1_ip}}"}
+      - { dest: "./roles/configure_the_AM1_clustering/vars/main.yml", regex: "remote_IP:", insertafter: "remote_IP:" , line: "remote_IP:\ {{AM_server_2_ip}}"}
+
+      - { dest: "./roles/configure_the_AM2_clustering/vars/main.yml", regex: "am_host:", insertafter: "am_host:" , line: "am_host:\ {{Gateway_domain_name}}"}
+      - { dest: "./roles/configure_the_AM2_clustering/vars/main.yml", regex: "local_IP:", insertafter: "local_IP:" , line: "local_IP:\ {{AM_server_2_ip}}"}
+      - { dest: "./roles/configure_the_AM2_clustering/vars/main.yml", regex: "remote_IP:", insertafter: "remote_IP:" , line: "remote_IP:\ {{AM_server_1_ip}}"}
+
+      - { dest: "./roles/configure_the_MIG1_clustering/vars/main.yml", regex: "mig_host:", insertafter: "mig_host:" , line: "mig_host:\ {{MIG_domain_name}}"}
+      - { dest: "./roles/configure_the_MIG1_clustering/vars/main.yml", regex: "local_IP:", insertafter: "local_IP:" , line: "local_IP:\ {{MIG_server_1_ip}}"}
+      - { dest: "./roles/configure_the_MIG1_clustering/vars/main.yml", regex: "remote_IP:", insertafter: "remote_IP:" , line: "remote_IP:\ {{MIG_server_2_ip}}"}
+
+      - { dest: "./roles/configure_the_MIG2_clustering/vars/main.yml", regex: "mig_host:", insertafter: "mig_host:" , line: "mig_host:\ {{MIG_domain_name}}"}
+      - { dest: "./roles/configure_the_MIG2_clustering/vars/main.yml", regex: "local_IP:", insertafter: "local_IP:" , line: "local_IP:\ {{MIG_server_2_ip}}"}
+      - { dest: "./roles/configure_the_MIG2_clustering/vars/main.yml", regex: "remote_IP:", insertafter: "remote_IP:" , line: "remote_IP:\ {{MIG_server_1_ip}}"}

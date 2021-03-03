@@ -1,0 +1,18 @@
+---
+# CHANGE THE FOLLOWING PROPERTIES ACCORDINGLY
+
+mysql_host: db.com
+mysql_user: das_user
+mysql_password: DAS_user@123
+mysql_port: 3306
+
+DAS_domain_name: mediation.com
+
+analytic_extract_location: /mnt
+zip_location: /mnt
+
+analytics_version: 2.0.0
+analytic_offset: 0
+
+java_home: /usr
+export_java: "yes"

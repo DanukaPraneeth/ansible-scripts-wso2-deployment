@@ -1,0 +1,77 @@
+<sequence xmlns="http://ws.apache.org/ns/synapse" name="WSO2AM--Ext--Out">
+    <property name="RESPONSE_TIMESTAMP" expression="get-property('SYSTEM_TIME')"/>
+    <class name="org.wso2telco.dep.nashornmediator.NashornMediator">
+            <property name="script" value="
+                       var requestTimeStamp = mc.getProperty('REQUEST_TIMESTAMP');
+                       var responseTimeStamp = mc.getProperty('RESPONSE_TIMESTAMP');
+                       var responseTime = responseTimeStamp - requestTimeStamp;
+                       mc.setProperty('RESPONSE_TIME', responseTime);
+            "/>
+    </class>
+    <log level="custom">
+            <property name="API Response Status" expression="$axis2:HTTP_SC"/>
+            <property name="Request ID" expression="$ctx:MESSAGE_ID"/>
+        <property name="Response Time(ms)" expression="$ctx:RESPONSE_TIME"/>
+        </log>
+<filter source="get-property('REST_API_CONTEXT')" regex="/token|/revoke|/userinfo|/authorize">
+   <then />
+   <else>
+    <property expression="json-eval($.)" name="JSON-Payload" scope="default" type="STRING"/>
+    <property expression="get-property('SYSTEM_TIME')" name="RESPONSE_TIME" scope="default" type="LONG"/>
+    <class name="org.wso2telco.dep.nashornmediator.NashornMediator">
+        <property name="script" value="
+               var time1 = mc.getProperty('requestTime');
+             var time2 = mc.getProperty('RESPONSE_TIME');
+               var timeTaken = time2 - time1;
+               mc.setProperty('SERVICE_TIME', timeTaken + '');
+        "/>
+    </class>
+
+        <class name="com.wso2telco.dep.mediator.ResponseStatInjectionMediator"/>
+
+    <notifyEvent>
+        <eventSink>GatewayAnalyticsEvent</eventSink>
+        <streamName>org.wso2telco.analytics.hub.stream.responseStatistics</streamName>
+        <streamVersion>1.0.0</streamVersion>
+        <attributes>
+            <meta>
+                <attribute defaultValue="" expression="get-property('clientType')" name="clientType" type="STRING"/>
+            </meta>
+            <correlation/>
+            <payload>
+                <attribute defaultValue="" expression="get-property('api.ut.consumerKey')" name="consumerKey" type="STRING"/>
+                <attribute defaultValue="" expression="get-property('api.ut.context')" name="context" type="STRING"/>
+                <attribute defaultValue="" expression="get-property('SYNAPSE_REST_API_VERSION')" name="apiVersion" type="STRING"/>
+                <attribute defaultValue="" expression="get-property('api.ut.api')" name="api" type="STRING"/>
+                <attribute defaultValue="" expression="get-property('api.ut.resource')" name="resourcePath" type="STRING"/>
+                <attribute defaultValue="" expression="get-property('api.ut.HTTP_METHOD')" name="method" type="STRING"/>
+                <attribute defaultValue="" expression="get-property('api.ut.version')" name="version" type="STRING"/>
+                <attribute defaultValue="" expression="get-property('RESPONSE_TIME')" name="responseTime" type="LONG"/>
+                <attribute defaultValue="" expression="get-property('SERVICE_TIME')" name="serviceTime" type="LONG"/>
+                <attribute defaultValue="" expression="get-property('api.ut.userId')" name="serviceProvider" type="STRING"/>
+                <attribute defaultValue="" expression="get-property('tenantDomain')" name="tenantDomain" type="STRING"/>
+                <attribute defaultValue="" expression="get-property('api.ut.hostName')" name="hostName" type="STRING"/>
+                <attribute defaultValue="" expression="get-property('api.ut.apiPublisher')" name="apiPublisher" type="STRING"/>
+                <attribute defaultValue="" expression="get-property('api.ut.application.name')" name="applicationName" type="STRING"/>
+                <attribute defaultValue="" expression="$trp:requestId" name="requestId" type="STRING"/>
+                <attribute name="operatorId" value="1"  type="STRING"/>
+                <attribute defaultValue="" expression="$axis2:HTTP_SC" name="responseCode" type="STRING"/>
+                <attribute defaultValue="" expression="get-property('transport','msisdn')" name="misisdn" type="STRING"/>
+                <attribute defaultValue="" name="direction" type="STRING" value="north-bound"/>
+                <attribute defaultValue="" expression="get-property('JSON-Payload')" name="jsonBody" type="STRING"/>
+                <attribute defaultValue="" expression="get-property('serviceProviderId')" name="serviceProviderId" type="STRING"/>
+                <attribute defaultValue="" expression="get-property('spUserId')" name="spUserId" type="STRING"/>
+                <attribute defaultValue="" expression="get-property('spConsumerKey')" name="spConsumerKey" type="STRING"/>
+                <attribute name="operatorName" value="OPERATOR" type="STRING"/>
+                <attribute defaultValue="" expression="get-property('apiPublisherID')" name="apiPublisherID" type="STRING"/>
+                <attribute defaultValue="" expression="get-property('apiID')" name="apiID" type="STRING"/>
+                <attribute defaultValue="" expression="get-property('department')" name="department" type="STRING"/>
+                <attribute defaultValue="" expression="get-property('api.ut.application.id')" name="applicationId" type="STRING"/>
+            </payload>
+            <arbitrary/>
+        </attributes>
+    </notifyEvent>
+   </else>
+</filter>
+</sequence>
+

@@ -1,0 +1,128 @@
+---
+  - set_fact:
+     gateway_location: "{{extract_location}}/gateway"
+
+
+#-------------------- Download the patch file -------------------------------------
+  - name: AM https, patch configuration for gateway - download the patch file - patch0417
+    get_url:
+      url: "{{patch_download_link}}"
+      dest: "{{extract_location}}/"
+      mode: 0755
+
+##-------------------Extract the patch file-------------------
+  - unarchive:
+     src: "{{extract_location}}/patch0417.zip"
+     dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/components/patches/"
+     copy: no
+
+#-------------------Remove the existing certificate files-------------------
+  - name: AM https, patch configuration for gateway - Remove the existing wso2carbon.jks file before copying the new certificate file
+    file:
+      path: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/resources/security/wso2carbon.jks"
+      state: absent
+    ignore_errors: False
+
+#-------------------Copy the certificate files-------------------
+  - name: AM https, patch configuration for gateway - copying certificate file - wso2carbon.jks
+    copy:
+     src: "wso2carbon.jks"
+     dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/resources/security/"
+    ignore_errors: False
+
+#-------------------Remove the existing certificate files-------------------
+  - name: AM https, patch configuration for gateway - Remove the existing client-truststore.jks file before copying the new certificate file
+    file:
+      path: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/resources/security/client-truststore.jks"
+      state: absent
+    ignore_errors: False
+
+#-------------------Copy the certificate files-------------------
+  - name: AM https, patch configuration for gateway - copying certificate file - client-truststore.jks
+    copy:
+     src: "client-truststore.jks"
+     dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/resources/security/"
+    ignore_errors: False
+
+#-------------------Copy analytics-datasources.xml-------------------
+  - name: AM https, patch configuration for gateway - copying broker.xml to repository/conf
+    copy:
+     src: "hub-broker.xml"
+     dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/broker.xml"
+
+#-------------------Change analytics-datasources.xml.xml-------------------
+  - name: AM https, patch configuration for gateway - configure AMQP and MQTT transports
+    replace:
+      dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/broker.xml"
+      regexp: '{password}'
+      replace: '{{httpsPassword}}'
+      backup: no
+
+#--------------------------- configuring keystores for security in identity.xml--------------------------------
+  - name: AM https, patch configuration for gateway - Configuring keystores for security in identity.xml
+    replace:
+      dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/identity/identity.xml"
+      regexp: '<Password>wso2carbon</Password>'
+      replace: '<Password>{{httpsPassword}}</Password>'
+      backup: no
+
+#------------------------------Configuring keystores for endpoints--------------------
+  - name: AM https, patch configuration for gateway - Configuring keystores for endpoints EndpointConfig.properties
+    replace:
+      dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/identity/EndpointConfig.properties"
+      regexp: 'Carbon.Security.KeyStore.Password=wso2carbon'
+      replace: 'Carbon.Security.KeyStore.Password={{httpsPassword}}'
+      backup: no
+
+  - name: AM https, patch configuration for gateway - Configuring keystores for endpoints EndpointConfig.properties
+    replace:
+      dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/identity/EndpointConfig.properties"
+      regexp: 'Carbon.Security.TrustStore.Password=wso2carbon'
+      replace: 'Carbon.Security.TrustStore.Password={{httpsPassword}}'
+      backup: no
+
+#----------------------Configuring keystores in carbon.xml----------------------------------------
+  - name: AM https, patch configuration for gateway - Configuring keystores in carbon.xml - Password
+    replace:
+      dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/carbon.xml"
+      regexp: '<Password>wso2carbon</Password>'
+      replace: '<Password>{{httpsPassword}}</Password>'
+      backup: no
+
+  - name: AM https, patch configuration for gateway - Configuring keystores in carbon.xml - KeyAlias
+    replace:
+      dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/carbon.xml"
+      regexp: '<KeyAlias>wso2carbon</KeyAlias>'
+      replace: '<KeyAlias>{{KeyAlias}}</KeyAlias>'
+      backup: no
+
+  - name: AM https, patch configuration for gateway - Configuring keystores in carbon.xml
+    replace:
+      dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/carbon.xml"
+      regexp: '<KeyPassword>wso2carbon</KeyPassword>'
+      replace: '<KeyPassword>{{httpsPassword}}</KeyPassword>'
+      backup: no
+
+
+#----------------------Configuring keystores in axis2.xml----------------------------------------
+  - name: AM https, patch configuration for gateway - Configuring keystores in axis2.xml - Password
+    replace:
+      dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/axis2/axis2.xml"
+      regexp: '<Password>wso2carbon</Password>'
+      replace: '<Password>{{httpsPassword}}</Password>'
+      backup: no
+
+  - name: AM https, patch configuration for gateway - Configuring keystores in axis2.xml - KeyPassword
+    replace:
+      dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/axis2/axis2.xml"
+      regexp: '<KeyPassword>wso2carbon</KeyPassword>'
+      replace: '<KeyPassword>{{httpsPassword}}</KeyPassword>'
+      backup: no
+
+#----------------------Configuring keystores in catalina-server.xml----------------------------------------
+  - name: AM https, patch configuration for gateway - Configuring keystores in catalina-server.xml
+    replace:
+      dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/tomcat/catalina-server.xml"
+      regexp: 'keystorePass="wso2carbon"'
+      replace: 'keystorePass="{{httpsPassword}}"'
+      backup: no

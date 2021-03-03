@@ -1,0 +1,16 @@
+---
+  - set_fact:
+     https_port: "9443"
+
+#-------------------Start the identity server-------------------
+  - name: Start Hub Mediation
+    shell: "{{esb_home}}/wso2esb-{{esb_version}}/bin/./wso2server.sh start"
+    ignore_errors: True
+
+#-------------------Wait for server to start-------------------
+  - name: Wait for server to start
+    wait_for:
+      port: "{{(https_port|int)+(offset|int)}}"
+      delay: 5
+    ignore_errors: True
+

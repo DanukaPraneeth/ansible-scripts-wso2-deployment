@@ -1,0 +1,9 @@
+---
+# CHANGE THE FOLLOWING PROPERTIES ACCORDINGLY
+
+
+analytic_extract_location: /mnt       # give the same extract loacation as in the other DAS role
+analytics_version: 2.0.0
+
+httpsPassword: wso2telco@123
+KeyAlias: ncelwso2telco

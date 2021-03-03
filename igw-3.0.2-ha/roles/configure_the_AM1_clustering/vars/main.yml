@@ -1,0 +1,11 @@
+---
+# CHANGE THE FOLLOWING PROPERTIES ACCORDINGLY
+
+extract_location: /mnt      # give the same extract loacation as in the role, 'download_AM_for_server'
+product_version: 3.0.2
+
+am_host: am.com
+local_IP: 13.58.109.76
+local_port: 4000
+remote_IP: 13.58.196.237
+remote_port: 4001

@@ -1,0 +1,171 @@
+---
+
+#---------------------- Configure database server and create databases -----------------------------------------
+
+- name: Internal gateway setup automation process - Databases
+  hosts: DB_server_M
+  become: true
+  become_method: sudo
+  gather_facts: True
+  tags: DB server setup
+
+  roles:
+    - dbserver_prerequisites
+    - import_products
+    - create_DB
+
+---------------------- Configure Nginx server -----------------------------------------
+
+- name: Internal/External gateway setup automation process - Databases
+  hosts: Nginx
+  become: true
+  become_method: sudo
+  gather_facts: True
+  tags: Nginx server setup
+
+  roles:
+    - download_configure_nginx
+
+#--------------------- Setup the AM server 1 - PART 1----------------------------------------
+
+- name: Internal gateway setup automation process -API Manager
+  hosts: AM_server_1
+  become: true
+  become_method: sudo
+  gather_facts: True
+  tags: API manager
+
+  roles:
+    - product_prerequisites
+    - download_AM_for_server
+    - configure_the_AM_gateway
+    - configure_the_AM_portal
+    - MIG_configure_in_gateway
+    - MIG_configure_in_portal
+
+#--------------------- Setup the AM server 2 - PART 1----------------------------------------
+
+- name: Internal gateway setup automation process -API Manager
+  hosts: AM_server_2
+  become: true
+  become_method: sudo
+  gather_facts: True
+  tags: API manager
+
+  roles:
+    - product_prerequisites
+    - download_AM_for_server
+    - configure_the_AM_gateway
+    - configure_the_AM_portal
+    - MIG_configure_in_gateway
+    - MIG_configure_in_portal
+
+#------------------------- Databse server configuration 2 - INTGW v3.0.0 specific changes ---------------------------
+- name: Internal gateway setup automation process - Databases
+  hosts: DB_server_M
+  become: true
+  become_method: sudo
+  gather_facts: True
+  tags: DB server setup
+
+  roles:
+    - permission_tree
+
+#--------------------- Setup the AM server 1 - PART 2----------------------------------------
+
+- name: Internal gateway setup automation process -API Manager
+  hosts: AM_server_1
+  become: true
+  become_method: sudo
+  gather_facts: True
+  tags: API manager
+
+  roles:
+    - configure_the_AM1_clustering
+    - configure_AM_gateway_security
+    - configure_AM_portal_security
+    - DAS_configure_in_AM_gateway
+    - DAS_configure_in_AM_portal
+
+#--------------------- Setup the AM server 2 - PART 2----------------------------------------
+
+- name: Internal/External gateway setup automation process -API Manager
+  hosts: AM_server_2
+  become: true
+  become_method: sudo
+  gather_facts: True
+  tags: API manager
+
+  roles:
+    - configure_the_AM2_clustering
+    - configure_AM_gateway_security
+    - configure_AM_portal_security
+    - DAS_configure_in_AM_gateway
+    - DAS_configure_in_AM_portal
+
+#-------------------------- Setup the DAS server 1 (Internal gateway)---------------------------------------------
+
+- name: Internal gateway setup automation process - DAS server
+  hosts: DAS_server_1
+  become: true
+  become_method: sudo
+  gather_facts: True
+  tags: DAS
+
+  roles:
+    - product_prerequisites
+    - download_IGW_DAS_for_server
+    - configure_IGW_DAS
+    - configure_IGW_DAS_1_clustering
+    - configure_IGW_DAS_security
+    - start_IGW_DAS
+
+#-------------------------- Setup the DAS server 2 (Internal gateway) ---------------------------------------------
+
+- name: Internal gateway setup automation process - DAS server
+  hosts: DAS_server_2
+  become: true
+  become_method: sudo
+  gather_facts: True
+  tags: DAS
+
+  roles:
+    - product_prerequisites
+    - download_IGW_DAS_for_server
+    - configure_IGW_DAS
+    - configure_IGW_DAS_2_clustering
+    - configure_IGW_DAS_security
+    - start_IGW_DAS
+
+
+
+
+#------------------------ Setup the MIG server 1----------------------------------------
+
+- name: Internal gateway setup automation process - MIG server
+  hosts: MIG_server_1
+  become: true
+  become_method: sudo
+  gather_facts: True
+  tags: MIG
+
+  roles:
+    - product_prerequisites
+    - download_MIG_for_server
+    - configure_the_MIG
+    - start_MIG
+
+#------------------------ Setup the MIG server 2----------------------------------------
+
+- name: Internal gateway setup automation process - MIG server
+  hosts: MIG_server_2
+  become: true
+  become_method: sudo
+  gather_facts: True
+  tags: MIG
+
+  roles:
+    - product_prerequisites
+    - download_MIG_for_server
+    - configure_the_MIG
+    - start_MIG

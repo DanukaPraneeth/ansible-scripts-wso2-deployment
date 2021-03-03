@@ -1,0 +1,31 @@
+---
+#-------------------Start the identity server-------------------
+- name: download the wso2 API manager to the AM servers
+  get_url:
+    url: "{{download_link}}"
+    dest: "{{zip_location}}/wso2telcohub-{{product_version}}.zip"
+    mode: 0755
+
+- name: Creates directory for gateway
+  file: path="{{extract_location}}/gateway/" state=directory
+
+#-------------------Extract wso2telcohub-gateway-------------------
+- unarchive:
+   src: "{{zip_location}}/wso2telcohub-{{product_version}}.zip"
+   dest: "{{extract_location}}/gateway/"
+   copy: no
+
+- name: Creates directory for gateway
+  file: path="{{extract_location}}/portal/" state=directory
+
+#-------------------Extract wso2telcohub-portal-------------------
+- unarchive:
+   src: "{{zip_location}}/wso2telcohub-{{product_version}}.zip"
+   dest: "{{extract_location}}/portal/"
+   copy: no
+
+##------------------ download the patch files-----------------------
+#- name: copy the wso2 API manager patch file to the AM servers
+#  copy:
+#    src: "WSO2Telco-DEP-{{product_version}}-001.zip"
+#    dest: "{{zip_location}}"

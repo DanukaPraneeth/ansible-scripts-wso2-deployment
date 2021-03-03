@@ -1,0 +1,52 @@
+---
+
+  - name: Install wget
+    command: yum -y install wget
+
+  - name: Update YUM with latest MYSQL repo
+    shell: wget http://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
+    ignore_errors: yes
+
+  - name: Update YUM with latest MYSQL repo
+    shell: rpm -ivh mysql57-community-release-el7-11.noarch.rpm
+    ignore_errors: yes
+
+  - name: Install Dependencies.
+    yum: name={{ item }} state=installed
+    with_items:
+      - mysql-server
+      - MySQL-python
+
+  - name: MYSQL DB configurations - start mysql
+    shell: service mysqld start
+    become: yes
+
+  - name: reset mysql 5.6+ default password (no longer empty)
+    shell: mysql_secret=$(sudo grep 'temporary password' /var/log/mysqld.log | awk '{print $NF}') && mysqladmin -u root --password=${mysql_secret} password '{{mysql_root_pass}}'
+    ignore_errors: yes
+
+  - name: reset mysql 5.6+ default password (no longer empty)
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'FLUSH PRIVILEGES;'
+    ignore_errors: yes
+
+  - name: Copy the templates to their respestive destination
+    template:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      owner: root
+      group: root
+      mode: "{{ item.mode | default(644) }}"
+    become: yes
+    with_items:
+      - { src: 'my.cnf.j2', dest: '/etc/my.cnf' }
+      - { src: 'root.cnf.j2', dest: '/root/.my.cnf', mode: '600' }
+    notify:
+      - Restart MySQL
+
+
+  - name: Ensure MYSQLD is running and starts at boot
+    service: name=mysqld state=started enabled=yes
+
+  - name: MYSQL DB configurations - restart mysql
+    shell: service mysqld restart
+    become: yes

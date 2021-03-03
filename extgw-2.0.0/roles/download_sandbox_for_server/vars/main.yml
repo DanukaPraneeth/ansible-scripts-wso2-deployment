@@ -1,0 +1,7 @@
+---
+# vars file for aws_automation
+## Update the following arrays with the intances you need to start
+
+extract_location: /mnt
+product_version: 1.7.1
+sandbox_url: https://s3.amazonaws.com/sftp-release-binaries/sftp/sandbox/v1.7.1/sandbox-service-bin-1.7.1.zip

@@ -1,0 +1,12 @@
+---
+
+#-------------------Grant permission for the user--------------------------------------
+  - name: Mediation DB configurations - grant permission to proddepdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON proddepdb.* TO '{{mediation_mysql_user}}'@'{{mediation_host_1}}' IDENTIFIED BY "{{mediation_mysql_password}}";'
+    when: import_dbs == "yes"
+
+#----------------------------------------------------------------------------------------
+  - name: Mediation DB configurations - grant permission to prodUMdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON prodUMdb.* TO '{{mediation_mysql_user}}'@'{{mediation_host_1}}' IDENTIFIED BY "{{mediation_mysql_password}}";'
+    when: import_dbs == "yes"
+

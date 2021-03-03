@@ -1,0 +1,75 @@
+---
+- set_fact:
+     https_port: "9443"
+     https_api_port: "8243"
+     certificate_path: "/mnt/certificates"
+
+- name: Creates directory for certificates
+  file: path="{{certificate_path}}" state=directory
+
+- name: Nginx configurations - copying .crt to the server
+  copy:
+   src: "{{crt_file}}"
+   dest: "{{certificate_path}}"
+
+- name: Nginx configurations - copying .key to the server
+  copy:
+   src: "{{key_file}}"
+   dest: "{{certificate_path}}"
+
+- name: Nginx configurations - copying config to the server
+  template:
+   src: "prod.wso2telco.upstream.conf"
+   dest: "/etc/nginx/conf.d/"
+
+- name: Nginx configurations - Change .crt file name in config file
+  replace:
+    dest: "/etc/nginx/conf.d/prod.wso2telco.upstream.conf"
+    regexp: 'CRT'
+    replace: '{{crt_file}}'
+    backup: no
+
+- name: Nginx configurations - Change .key file name in config file
+  replace:
+    dest: "/etc/nginx/conf.d/prod.wso2telco.upstream.conf"
+    regexp: 'KEY'
+    replace: '{{key_file}}'
+    backup: no
+
+##--------------------- server configuration for carbon console -----------------------------------
+
+- name: Nginx configurations - Whitelist the port in config file for carbon cosole
+  replace:
+    dest: "/etc/nginx/conf.d/prod.wso2telco.upstream.conf"
+    regexp: 'Listen_port'
+    replace: '{{console_port}}'
+    backup: no
+
+- name: Nginx configurations - Add the mig server 1 for carbon cosole
+  replace:
+    dest: "/etc/nginx/conf.d/prod.wso2telco.upstream.conf"
+    regexp: 'MIG_11'
+    replace: '{{mig_ip_1}}:{{(https_port|int)+(mig_offset|int)}}'
+    backup: no
+
+- name: Nginx configurations - Add the mig server 2 for carbon cosole
+  replace:
+    dest: "/etc/nginx/conf.d/prod.wso2telco.upstream.conf"
+    regexp: 'MIG_21'
+    replace: '{{mig_ip_2}}:{{(https_port|int)+(mig_offset|int)}}'
+    backup: no
+
+##--------------------- server configuration for api calls -----------------------------------
+- name: Nginx configurations - Add the mig server 1 for api calls
+  replace:
+    dest: "/etc/nginx/conf.d/prod.wso2telco.upstream.conf"
+    regexp: 'MIG_12'
+    replace: '{{mig_ip_1}}:{{(https_api_port|int)+(mig_offset|int)}}'
+    backup: no
+
+- name: Nginx configurations - Add the mig server 2 for api calls
+  replace:
+    dest: "/etc/nginx/conf.d/prod.wso2telco.upstream.conf"
+    regexp: 'MIG_22'
+    replace: '{{mig_ip_2}}:{{(https_api_port|int)+(mig_offset|int)}}'
+    backup: no

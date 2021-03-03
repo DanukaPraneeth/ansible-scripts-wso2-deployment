@@ -1,0 +1,8 @@
+---
+# vars file for aws_automation
+## Update the following arrays with the intances you need to start
+
+extract_location: /mnt
+product_version: 2.1.0
+download_link: https://s3.amazonaws.com/sftp-release-binaries/sftp/wso2telco/wso2analytics-hub-2.1.0.zip
+

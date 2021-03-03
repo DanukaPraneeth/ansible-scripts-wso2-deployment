@@ -1,0 +1,207 @@
+---
+  - set_fact:
+     pack_location: "{{analytic_extract_location}}/wso2analytics-hub-{{product_version}}"
+
+
+#-------------------Create a directory to install the pack -------------------
+  - name: configure DAS - Creates directory to setup the pack
+    file: path="{{analytic_extract_location}}" state=directory
+
+#-------------------Extract wso2telcohub-2.0.0-------------------
+  - unarchive:
+     src: "{{zip_location}}/wso2telcoAnalytics-ingw-{{product_version}}.dialog.zip"
+     dest: "{{analytic_extract_location}}/"
+     copy: no
+
+#-------------------Copy mysql connector-------------------
+  - name: configure DAS - copying mysql-connector-java to [carbon_home]/repository/components/lib
+    copy:
+     src: "{{ item }}"
+     dest: "{{pack_location}}/repository/components/lib"
+     owner: root
+     group: root
+     mode: 0644
+    with_fileglob:
+     - "mysql-connector-java-*.jar"
+
+#------------------- analytics registry.xml configurations-------------------------------------------------------
+#------------------------------Copy registry.xml ----------------------------------------------
+  - name: configure DAS - copying registry.xml to repository/conf
+    copy:
+     src: "registry.xml"
+     dest: "{{pack_location}}/repository/conf/registry.xml"
+
+#-------------------Mysql Changes in registry.xml------------------
+  - name: configure DAS - Update mysqluser name in repository/conf/registry.xml
+    replace:
+      dest: "{{pack_location}}/repository/conf/registry.xml"
+      regexp: 'mysql_user'
+      replace: '{{mysql_user}}'
+      backup: no
+
+  - name: configure DAS - Update mysql port in repository/conf/registry.xml
+    replace:
+      dest: "{{pack_location}}/repository/conf/registry.xml"
+      regexp: 'mysql_port'
+      replace: '{{mysql_port}}'
+      backup: no
+
+  - name: configure DAS - Update the mysql host in repository/conf/registry.xml
+    replace:
+      dest: "{{pack_location}}/repository/conf/registry.xml"
+      regexp: 'mysql_host'
+      replace: '{{mysql_host}}'
+      backup: no
+
+#-------------------Copy master-datasources-------------------
+  - name: configure DAS - copying master-datasources.xml to repository/conf
+    copy:
+     src: "hub-das-master-datasources.xml"
+     dest: "{{pack_location}}/repository/conf/datasources/master-datasources.xml"
+
+#-------------------Change master-datasources.xml-------------------
+  - name: configure DAS - Setup username in master-datasources.xml file
+    replace:
+      dest: "{{pack_location}}/repository/conf/datasources/master-datasources.xml"
+      regexp: '{username}'
+      replace: '{{mysql_user}}'
+      backup: no
+
+  - name: configure DAS - Setup password in master-datasources.xml file
+    replace:
+      dest: "{{pack_location}}/repository/conf/datasources/master-datasources.xml"
+      regexp: '{password}'
+      replace: '{{mysql_password}}'
+      backup: no
+
+  - name: configure DAS - Setup host in master-datasources.xml file
+    replace:
+      dest: "{{pack_location}}/repository/conf/datasources/master-datasources.xml"
+      regexp: '{database host}'
+      replace: '{{mysql_host}}'
+      backup: no
+
+  - name: configure DAS - Setup port in master-datasources.xml file
+    replace:
+      dest: "{{pack_location}}/repository/conf/datasources/master-datasources.xml"
+      regexp: '{port}'
+      replace: '3306'
+      backup: no
+
+  - name: configure DAS - Rename hub_userstoredb to prodUMdb in master-datasources.xml file
+    replace:
+      dest: "{{pack_location}}/repository/conf/datasources/master-datasources.xml"
+      regexp: 'hub_userstoredb'
+      replace: 'prodUMdb'
+      backup: no
+
+  - name: configure DAS - Rename hub_apistatsdb to prodStatdb in master-datasources.xml file
+    replace:
+      dest: "{{pack_location}}/repository/conf/datasources/master-datasources.xml"
+      regexp: 'hub_apistatsdb'
+      replace: 'prodStatdb'
+      backup: no
+
+  - name: configure DAS - Rename hub_regdb to prodregdb in master-datasources.xml file
+    replace:
+      dest: "{{pack_location}}/repository/conf/datasources/master-datasources.xml"
+      regexp: 'hub_regdb'
+      replace: 'prodregdb'
+      backup: no
+
+#------------------- analytics datasourc configurations-------------------------------------------------------
+#-------------------Copy analytics-datasources.xml-------------------
+  - name: configure DAS - copying analytics-datasources.xml to repository/conf
+    copy:
+     src: "hub-das-analytics-datasources.xml"
+     dest: "{{pack_location}}/repository/conf/datasources/analytics-datasources.xml"
+
+#-------------------Change analytics-datasources.xml.xml-------------------
+  - name: configure DAS - Setup username in analytics-datasources.xml file
+    replace:
+      dest: "{{pack_location}}/repository/conf/datasources/analytics-datasources.xml"
+      regexp: '{username}'
+      replace: '{{mysql_user}}'
+      backup: no
+
+  - name: configure DAS - Setup password in analytics-datasources.xml file
+    replace:
+      dest: "{{pack_location}}/repository/conf/datasources/analytics-datasources.xml"
+      regexp: '{password}'
+      replace: '{{mysql_password}}'
+      backup: no
+
+  - name: configure DAS - Setup host in analytics-datasources.xml file
+    replace:
+      dest: "{{pack_location}}/repository/conf/datasources/analytics-datasources.xml"
+      regexp: '{database host}'
+      replace: '{{mysql_host}}'
+      backup: no
+
+  - name: configure DAS - Setup port in analytics-datasources.xml file
+    replace:
+      dest: "{{pack_location}}/repository/conf/datasources/analytics-datasources.xml"
+      regexp: '{port}'
+      replace: '3306'
+      backup: no
+
+  - name: configure DAS - Rename hub_analyticsdb1 to analytics_eventstore in analytics-datasources.xml file
+    replace:
+      dest: "{{pack_location}}/repository/conf/datasources/analytics-datasources.xml"
+      regexp: 'hub_analyticsdb1'
+      replace: 'analytics_eventstore'
+      backup: no
+
+  - name: configure DAS - Rename hub_analyticsdb2 to analytics_datastore in analytics-datasources.xml file
+    replace:
+      dest: "{{pack_location}}/repository/conf/datasources/analytics-datasources.xml"
+      regexp: 'hub_analyticsdb2'
+      replace: 'analytics_datastore'
+      backup: no
+
+
+  - name: configure DAS - Configure the user-mng.xml file
+    replace:
+      dest: "{{pack_location}}/repository/conf/user-mgt.xml"
+      regexp: 'WSO2CarbonDB'
+      replace: 'WSO2UM_DB'
+      backup: no
+
+#-------------------Change offset------------------
+  - name: configure DAS - Change offset value in repository/conf/carbon.xml
+    replace:
+      dest: "{{pack_location}}/repository/conf/carbon.xml"
+      regexp: '<Offset>1</Offset>'
+      replace: '<Offset>{{analytic_offset}}</Offset>'
+      backup: no
+
+#-------------------Change Host name ------------------
+  - name: configure DAS - Change Host name in repository/conf/carbon.xml
+    replace:
+      dest: "{{pack_location}}/repository/conf/carbon.xml"
+      regexp: '<!--HostName>www.wso2.org</HostName-->'
+      replace: '<HostName>{{DAS_domain_name}}</HostName>'
+      backup: no
+
+  - name: configure DAS - Change MgtHostName name in repository/conf/carbon.xml
+    replace:
+      dest: "{{pack_location}}/repository/conf/carbon.xml"
+      regexp: '<!--MgtHostName>mgt.wso2.org</MgtHostName-->'
+      replace: '<MgtHostName>{{DAS_domain_name}}</MgtHostName>'
+      backup: no
+
+  - name: configure DAS - Change Host name in repository/conf/dashboards/portal.json
+    replace:
+      dest: "{{pack_location}}/repository/conf/dashboards/portal.json"
+      regexp: '"hostname": "localhost"'
+      replace: '"hostname": "{{DAS_domain_name}}"'
+      backup: no
+
+#-------------------Export JAVA_HOME------------------
+  - name: configure DAS - Export JAVA_HOME
+    replace:
+      dest: "{{pack_location}}/bin/wso2server.sh"
+      regexp: 'PRGDIR=\`dirname \"\$PRG\"\`'
+      replace: 'export JAVA_HOME={{java_home}} && PRGDIR=`dirname "$PRG"`'
+      backup: no
+    when: export_java == "yes"

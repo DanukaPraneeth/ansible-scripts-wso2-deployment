@@ -1,0 +1,127 @@
+---
+- set_fact:
+   gateway_location: "{{extract_location}}/gateway"
+   gatewayConfig: "    -Dprofile=gateway-manager \\"
+
+#-------------------Change Deployment Type------------------
+- name: AM configuration for gateway - Change deployment type to external gateway
+  replace:
+    dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/bin/wso2server.sh"
+    regexp: 'DDEPLOYMENT_TYPE=external_gateway'
+    replace: 'DDEPLOYMENT_TYPE={{deployment_type}}'
+    backup: no
+
+#-------------------Change the profile to work as a gateway-------------------
+- name: AM configuration for gateway - enable the profile for gateway
+  lineinfile:
+      dest="{{gateway_location}}/wso2telcohub-{{product_version}}/bin/wso2server.sh"
+                regexp="-DworkerNode=false"
+                insertafter="-DworkerNode=false"
+                line={{gatewayConfig}}
+  ignore_errors: True
+
+#-------------------Copy mysql connector-------------------
+- name: AM configuration for gateway - copying mysql-connector-java to [carbon_home]/repository/components/lib
+  copy:
+   src: "{{ item }}"
+   dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/components/lib"
+   owner: root
+   group: root
+   mode: 0644
+  with_fileglob:
+  - "mysql-connector-java-*.jar"
+
+#-------------------Change master-datasources.xml-------------------
+- name: AM configuration for gateway - Setup username in master-datasources.xml file
+  replace:
+    dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/datasources/master-datasources.xml"
+    regexp: '{username}'
+    replace: '{{mysql_user}}'
+    backup: no
+
+- name: AM configuration for gateway - Setup password in master-datasources.xml file
+  replace:
+    dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/datasources/master-datasources.xml"
+    regexp: '{password}'
+    replace: '{{mysql_password}}'
+    backup: no
+
+- name: AM configuration for gateway - Setup host in master-datasources.xml file
+  replace:
+    dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/datasources/master-datasources.xml"
+    regexp: '{database host}'
+    replace: '{{mysql_host}}'
+    backup: no
+
+- name: AM configuration for gateway - Setup port in master-datasources.xml file
+  replace:
+    dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/datasources/master-datasources.xml"
+    regexp: '{port}'
+    replace: '3306'
+    backup: no
+
+- name: AM configuration for gateway - Rename hub_apimgtdb to prodapimgtdb in master-datasources.xml file
+  replace:
+    dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/datasources/master-datasources.xml"
+    regexp: 'hub_apimgtdb'
+    replace: 'prodapimgtdb'
+    backup: no
+
+- name: AM configuration for gateway - Rename hub_userstoredb to prodUMdb in master-datasources.xml file
+  replace:
+    dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/datasources/master-datasources.xml"
+    regexp: 'hub_userstoredb'
+    replace: 'prodUMdb'
+    backup: no
+
+- name: AM configuration for gateway - Rename hub_apistatsdb to prodStatdb in master-datasources.xml file
+  replace:
+    dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/datasources/master-datasources.xml"
+    regexp: 'hub_apistatsdb'
+    replace: 'prodStatdb'
+    backup: no
+
+- name: AM configuration for gateway - Rename hub_depdb to proddepdb in master-datasources.xml file
+  replace:
+    dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/datasources/master-datasources.xml"
+    regexp: 'hub_depdb'
+    replace: 'proddepdb'
+    backup: no
+
+- name: AM configuration for gateway - Rename hub_regdb to prodregdb in master-datasources.xml file
+  replace:
+    dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/datasources/master-datasources.xml"
+    regexp: 'hub_regdb'
+    replace: 'prodregdb'
+    backup: no
+
+- name: AM configuration for gateway - Rename hub_mbdb to prodmbdb in master-datasources.xml file
+  replace:
+    dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/datasources/master-datasources.xml"
+    regexp: 'hub_mbdb'
+    replace: 'prodmbdb'
+    backup: no
+
+- name: AM configuration for gateway - Rename activiti to prodactivitydb in master-datasources.xml file
+  replace:
+    dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/datasources/master-datasources.xml"
+    regexp: 'activiti'
+    replace: 'prodactivitydb'
+    backup: no
+
+#-------------------Change offset------------------
+- name: AM configuration for gateway - Change offset value in repository/conf/carbon.xml
+  replace:
+    dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/repository/conf/carbon.xml"
+    regexp: '<Offset>0</Offset>'
+    replace: '<Offset>{{offset}}</Offset>'
+    backup: yes
+
+
+#-------------------Export JAVA_HOME------------------
+- name: AM configuration for gateway - Export JAVA_HOME
+  replace:
+    dest: "{{gateway_location}}/wso2telcohub-{{product_version}}/bin/wso2server.sh"
+    regexp: 'PRGDIR=\`dirname \"\$PRG\"\`'
+    replace: 'export JAVA_HOME={{java_home}} && PRGDIR=`dirname "$PRG"`'
+    backup: yes

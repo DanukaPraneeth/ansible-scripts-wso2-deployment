@@ -1,0 +1,26 @@
+---
+
+mysql_host: db.com
+mysql_user: mig_user
+mysql_password: MIG_user@123
+mysql_version: 5.7
+mysql_port: 3306
+
+https_port: 9443
+http_port: 9763
+hub_offset: 1
+hub_home: /mnt
+hub_version: 2.1.0
+portal_name: localhost:9444        # chage the port according to the portal offset
+gateway_http_api_endpoint: localhost:8280   # <------------------ Give the domain and ports correspond to the offset of the gateway
+gateway_https_api_endpoint: localhost:8243  # <------------------ Give the domain and ports correspond to the offset of the gateway
+
+is_name: mig.com:9443
+is_host: mig.com
+mig_offset: 0
+extract_location: /mnt
+zip_location: /mnt
+
+java_home: /usr/lib/jvm/java-8-oracle
+# whether need to export java or not
+export_java: "yes"

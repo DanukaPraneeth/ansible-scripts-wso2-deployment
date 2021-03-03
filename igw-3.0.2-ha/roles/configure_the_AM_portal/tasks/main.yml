@@ -1,0 +1,168 @@
+---
+- set_fact:
+   portal_location: "{{extract_location}}/portal/wso2telcohub-{{product_version}}"
+   http_port: "9763"
+   https_port: "9443"
+
+#------------------- Create portal folder ----------------------------------
+- name: AM configuration for portal - Creates directory for portal
+  file: path="{{extract_location}}/portal/" state=directory
+
+#-------------------Extract wso2telcohub-portal-------------------
+- name: AM configuration for portal - Extract wso2telcohub-portal
+  unarchive:
+   src: "{{zip_location}}/wso2telcohub-{{product_version}}.zip"
+   dest: "{{extract_location}}/portal/"
+   copy: no
+
+#-------------------Change Deployment Type------------------
+- name: AM configuration for portal - Change deployment type to external gateway
+  replace:
+    dest: "{{portal_location}}/bin/wso2server.sh"
+    regexp: 'DDEPLOYMENT_TYPE=external_gateway'
+    replace: 'DDEPLOYMENT_TYPE={{deployment_type}}'
+    backup: no
+
+#-------------------Copy mysql connector-------------------
+- name: AM configuration for portal - copying mysql-connector-java to [carbon_home]/repository/components/lib
+  copy:
+   src: "{{ item }}"
+   dest: "{{portal_location}}/repository/components/lib"
+   owner: root
+   group: root
+   mode: 0644
+  with_fileglob:
+  - "mysql-connector-java-*.jar"
+
+#-------------------Change master-datasources.xml-------------------
+- name: AM configuration for portal - Setup username in master-datasources.xml file
+  replace:
+    dest: "{{portal_location}}/repository/conf/datasources/master-datasources.xml"
+    regexp: '{username}'
+    replace: '{{mysql_user}}'
+    backup: no
+
+- name: AM configuration for portal - Setup password in master-datasources.xml file
+  replace:
+    dest: "{{portal_location}}/repository/conf/datasources/master-datasources.xml"
+    regexp: '{password}'
+    replace: '{{mysql_password}}'
+    backup: no
+
+- name: AM configuration for portal - Setup host in master-datasources.xml file
+  replace:
+    dest: "{{portal_location}}/repository/conf/datasources/master-datasources.xml"
+    regexp: '{database host}'
+    replace: '{{mysql_host}}'
+    backup: no
+
+- name: AM configuration for portal - Setup port in master-datasources.xml file
+  replace:
+    dest: "{{portal_location}}/repository/conf/datasources/master-datasources.xml"
+    regexp: '{port}'
+    replace: '3306'
+    backup: no
+
+- name: AM configuration for portal - Rename hub_apimgtdb to prodapimgtdb in master-datasources.xml file
+  replace:
+    dest: "{{portal_location}}/repository/conf/datasources/master-datasources.xml"
+    regexp: 'hub_apimgtdb'
+    replace: 'prodapimgtdb'
+    backup: no
+
+- name: AM configuration for portal - Rename hub_userstoredb to prodUMdb in master-datasources.xml file
+  replace:
+    dest: "{{portal_location}}/repository/conf/datasources/master-datasources.xml"
+    regexp: 'hub_userstoredb'
+    replace: 'prodUMdb'
+    backup: no
+
+- name: AM configuration for portal - Rename hub_apistatsdb to prodStatdb in master-datasources.xml file
+  replace:
+    dest: "{{portal_location}}/repository/conf/datasources/master-datasources.xml"
+    regexp: 'hub_apistatsdb'
+    replace: 'prodStatdb'
+    backup: no
+
+- name: AM configuration for portal - Rename hub_depdb to proddepdb in master-datasources.xml file
+  replace:
+    dest: "{{portal_location}}/repository/conf/datasources/master-datasources.xml"
+    regexp: 'hub_depdb'
+    replace: 'proddepdb'
+    backup: no
+
+- name: AM configuration for portal - Rename hub_regdb to prodregdb in master-datasources.xml file
+  replace:
+    dest: "{{portal_location}}/repository/conf/datasources/master-datasources.xml"
+    regexp: 'hub_regdb'
+    replace: 'prodregdb'
+    backup: no
+
+- name: AM configuration for portal - Rename hub_mbdb to prodmbdb in master-datasources.xml file
+  replace:
+    dest: "{{portal_location}}/repository/conf/datasources/master-datasources.xml"
+    regexp: 'hub_mbdb'
+    replace: 'prodmbdb'
+    backup: no
+
+- name: AM configuration for portal - Rename activiti to prodactivitydb in master-datasources.xml file
+  replace:
+    dest: "{{portal_location}}/repository/conf/datasources/master-datasources.xml"
+    regexp: 'activiti'
+    replace: 'prodactivitydb'
+    backup: no
+
+
+#-------------------Setup Workflow Configuration-------------------
+#-------------------Change offset------------------
+- name: AM configuration for portal - Change offset value in repository/conf/carbon.xml
+  replace:
+    dest: "{{portal_location}}/repository/conf/carbon.xml"
+    regexp: '<Offset>0</Offset>'
+    replace: '<Offset>{{offset}}</Offset>'
+    backup: no
+
+#-------------------Setup workflow.properties file-------------------
+- name: AM configuration for portal - Change port value according to offset repository/conf/workflow.properties
+  replace:
+    dest: "{{portal_location}}/repository/conf/workflow.properties"
+    regexp: 'service.host=http://localhost:9763/workflow-service/'
+    replace: 'service.host=http://localhost:{{(http_port|int)+(offset|int)}}/workflow-service/'
+    backup: no
+
+- name: AM configuration for portal - Change email address in repository/conf/workflow.properties
+  replace:
+    dest: "{{portal_location}}/repository/conf/workflow.properties"
+    regexp: 'workflow.email.notification.from.address=email@address.com'
+    replace: 'workflow.email.notification.from.address={{wso2_mail_address}}'
+    backup: no
+
+- name: AM configuration for portal - Setup email password in repository/conf/workflow.properties
+  replace:
+    dest: "{{portal_location}}/repository/conf/workflow.properties"
+    regexp: 'workflow.email.notification.from.password=password'
+    replace: 'workflow.email.notification.from.password={{wso2_mail_password}}'
+    backup: no
+
+#-------------------Setup workflow-extension.xml file-------------------
+- name: AM configuration for portal - Setup https host name and port in workflow-extension.xml file
+  replace:
+    dest: "{{portal_location}}/repository/resources/workflow-extensions.xml"
+    regexp: 'https://localhost:9443'
+    replace: 'https://{{portal_host}}:{{(https_port|int) + (offset|int)}}'
+    backup: no
+
+- name: AM configuration for portal - Setup http hostname and port in workflow-extension.xml file
+  replace:
+    dest: "{{portal_location}}/repository/resources/workflow-extensions.xml"
+    regexp: 'http://localhost:9763'
+    replace: 'http://{{portal_host}}:{{(http_port|int) + (offset|int)}}'
+    backup: no
+
+#-------------------Export JAVA_HOME------------------
+- name: AM configuration for portal - Export JAVA_HOME
+  replace:
+    dest: "{{portal_location}}/bin/wso2server.sh"
+    regexp: 'PRGDIR=\`dirname \"\$PRG\"\`'
+    replace: 'export JAVA_HOME={{java_home}} && PRGDIR=`dirname "$PRG"`'
+    backup: no

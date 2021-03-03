@@ -1,0 +1,5 @@
+---
+# handlers file for aws_automation
+
+  - name: Restart MySQL
+    service: name=mysqld state=restarted

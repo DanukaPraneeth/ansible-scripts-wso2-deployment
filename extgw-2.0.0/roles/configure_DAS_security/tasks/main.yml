@@ -1,0 +1,101 @@
+---
+  - set_fact:
+     pack_location: "{{analytic_extract_location}}/wso2analytics-extgw-{{analytics_version}}"
+
+#-------------------Remove the existing certificate files-------------------
+  - name: DAS https configuration - Remove the existing wso2carbon.jks file before copying the new certificate file
+    file:
+      path: "{{pack_location}}/repository/resources/security/wso2carbon.jks"
+      state: absent
+    ignore_errors: False
+
+#-------------------Copy the certificate files-------------------
+  - name: DAS https configuration - copying certificate file - wso2carbon.jks
+    copy:
+     src: "wso2carbon.jks"
+     dest: "{{pack_location}}/repository/resources/security/"
+    ignore_errors: False
+
+#-------------------Remove the existing certificate files-------------------
+  - name: DAS https configuration - Remove the existing client-truststore.jks file before copying the new certificate file
+    file:
+      path: "{{pack_location}}/repository/resources/security/client-truststore.jks"
+      state: absent
+    ignore_errors: False
+
+#-------------------Copy the certificate files-------------------
+  - name: DAS https configuration - copying certificate file - client-truststore.jks
+    copy:
+     src: "client-truststore.jks"
+     dest: "{{pack_location}}/repository/resources/security/"
+    ignore_errors: False
+
+#--------------------------- configuring keystores for security in identity.xml--------------------------------
+  - name: DAS https configuration - Configuring keystores for security in identity.xml
+    replace:
+      dest: "{{pack_location}}/repository/conf/identity/identity.xml"
+      regexp: '<Password>wso2carbon</Password>'
+      replace: '<Password>{{httpsPassword}}</Password>'
+      backup: no
+
+#----------------------Configuring keystores in carbon.xml----------------------------------------
+  - name: DAS https configuration - Configuring keystores in carbon.xml - Password
+    replace:
+      dest: "{{pack_location}}/repository/conf/carbon.xml"
+      regexp: '<Password>wso2carbon</Password>'
+      replace: '<Password>{{httpsPassword}}</Password>'
+      backup: no
+
+  - name: DAS https configuration - Configuring keystores in carbon.xml - KeyAlias
+    replace:
+      dest: "{{pack_location}}/repository/conf/carbon.xml"
+      regexp: '<KeyAlias>wso2carbon</KeyAlias>'
+      replace: '<KeyAlias>{{KeyAlias}}</KeyAlias>'
+      backup: no
+
+  - name: DAS https configuration - Configuring keystores in carbon.xml - KeyPassword
+    replace:
+      dest: "{{pack_location}}/repository/conf/carbon.xml"
+      regexp: '<KeyPassword>wso2carbon</KeyPassword>'
+      replace: '<KeyPassword>{{httpsPassword}}</KeyPassword>'
+      backup: no
+
+#----------------------Configuring keystores in axis2.xml----------------------------------------
+  - name: DAS https configuration - Configuring keystores in axis2.xml - Password
+    replace:
+      dest: "{{pack_location}}/repository/conf/axis2/axis2.xml"
+      regexp: '<Password>wso2carbon</Password>'
+      replace: '<Password>{{httpsPassword}}</Password>'
+      backup: no
+
+  - name: DAS https configuration - Configuring keystores in axis2.xml - KeyPassword
+    replace:
+      dest: "{{pack_location}}/repository/conf/axis2/axis2.xml"
+      regexp: '<KeyPassword>wso2carbon</KeyPassword>'
+      replace: '<KeyPassword>{{httpsPassword}}</KeyPassword>'
+      backup: no
+
+
+#----------------------Configuring keystores in catalina-server.xml----------------------------------------
+  - name: DAS https configuration - Configuring keystores in catalina-server.xml - Password
+    replace:
+      dest: "{{pack_location}}/repository/conf/tomcat/catalina-server.xml"
+      regexp: 'keystorePass="wso2carbon"'
+      replace: 'keystorePass="{{httpsPassword}}"'
+      backup: no
+
+##----------------------Configuring keystores in catalina-server.xml----------------------------------------
+#  - name: DAS https configuration - Configuring keystores in catalina-server.xml - - Password
+#    replace:
+#      dest: "{{pack_location}}/repository/conf/tomcat/catalina-server.xml"
+#      regexp: 'keystorePass="wso2carbon"'
+#      replace: 'keystorePass="{{httpsPassword}}"'
+#      backup: no
+
+#----------------------Configuring keystores in data-bridge-config.xml----------------------------------------
+  - name: DAS https configuration - Configuring keystores in data-bridge-config.xml - - Password
+    replace:
+      dest: "{{pack_location}}/repository/conf/data-bridge/data-bridge-config.xml"
+      regexp: 'keyStorePassword>wso2carbon</keyStorePassword>'
+      replace: 'keyStorePassword>{{httpsPassword}}</keyStorePassword>'
+      backup: no

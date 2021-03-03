@@ -1,0 +1,11 @@
+---
+# CHANGE THE FOLLOWING PROPERTIES ACCORDINGLY
+
+
+extract_location: /mnt      # give the same extract loacation as in the role, 'download_AM_for_server'
+product_version: 2.1.0
+
+httpsPassword: wso2telco@123
+KeyAlias: ncelwso2telco
+
+patch_download_link: https://s3.amazonaws.com/sftp-release-binaries/wso2telco/patch0417.zip

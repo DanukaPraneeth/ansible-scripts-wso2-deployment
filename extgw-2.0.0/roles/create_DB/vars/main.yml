@@ -1,0 +1,49 @@
+---
+# variables for hub db configuration
+# DEFAULT VALUES ARE PROVIDED AND IT'S OPTIONAL TO CHANGE THE VALUES
+
+mysql_root_pass: Telco@1234
+
+# Please note that the zip locations should be the same zip locations as in the role "import_products"
+
+##---------------------------------------------------------------------------------------------##
+hub_zip_location: /mnt
+hub_extract_location: /mnt
+import_dbs: "yes"
+hub_product_version: 2.1.0
+hub_host_1: 18.221.43.255
+hub_mysql_user: am_user
+hub_mysql_password: AM_user@123
+
+
+##------------------------------------------------------------------------------------------------##
+# variables for mig db configuration
+mig_version: 2.1.0
+mysql_version: 5.7
+mig_zip_location: /mnt
+mig_extract_location: /mnt
+is_mysql_user: mig_user
+is_mysql_password: MIG_user@123
+is_host_1: 18.218.235.207
+
+##------------------------------------------------------------------------------------------------##
+# variables for mediation db configuration
+
+mediation_mysql_user: mediation_user
+mediation_mysql_password: Mediation_user@123
+mediation_host_1: 52.14.99.252
+
+
+##------------------------------------------------------------------------------------------------##
+# variables for DAS db configuration
+
+das_mysql_user: das_user
+das_mysql_password: DAS_user@123
+das_host_1: 52.14.99.252
+
+##------------------------------------------------------------------------------------------------##
+# variables for sandbox db configurations
+
+sandbox_host: 18.218.235.207
+sandbox_mysql_user: sandbox_user
+sandbox_mysql_password: SANDBOX_user@123

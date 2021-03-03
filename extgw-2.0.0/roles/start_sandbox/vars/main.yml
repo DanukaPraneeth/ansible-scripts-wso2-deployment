@@ -1,0 +1,11 @@
+---
+# vars file for aws_automation
+## Update the following arrays with the intances you need to start
+    
+extract_location: /mnt
+product_version: 1.7.1
+
+
+
+
+

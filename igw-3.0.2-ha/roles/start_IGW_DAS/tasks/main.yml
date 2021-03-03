@@ -1,0 +1,17 @@
+---
+
+  - set_fact:
+     https_port: "9443"
+
+#-------------------Start the identity server-------------------
+  - name: Start Analytic Server Manager
+    shell: "{{analytic_extract_location}}/wso2analytics-hub-{{product_version}}/bin/./wso2server.sh start"
+    ignore_errors: True
+
+#-------------------Wait for server to start-------------------
+  - name: Wait for server to start
+    wait_for:
+      port: "{{(https_port|int)+(analytic_offset|int)}}"
+      delay: 10
+    ignore_errors: True
+

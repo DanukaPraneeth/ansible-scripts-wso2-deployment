@@ -1,0 +1,64 @@
+---
+  - set_fact:
+      home: "{{gateway_home}}/gateway/wso2telcohub-{{product_version}}"
+      https_port: "9443"
+
+#-------------------Uncomment ClaimsRetrieverImplClass tag in api-manager.xml------------------
+  - name: DAS configure in AM gateway - Uncomment ClaimsRetrieverImplClass tag in api-manager.xml
+    replace:
+      dest: "{{home}}/repository/conf/api-manager.xml"
+      regexp: '<!--ClaimsRetrieverImplClass'
+      replace: '<ClaimsRetrieverImplClass'
+      backup: no
+
+  - name: DAS configure in AM gateway - Uncomment ClaimsRetrieverImplClass tag in api-manager.xml
+    replace:
+      dest: "{{home}}/repository/conf/api-manager.xml"
+      regexp: 'ClaimsRetrieverImplClass-->'
+      replace: 'ClaimsRetrieverImplClass>'
+      backup: no
+
+#--------------------- Copy jars to dropins ---------------------------------
+  - name: DAS configure in AM gateway - copying notifyevent-mediator-2.1.1.jar to dropins
+    copy:
+     src: "notifyevent-mediator-2.1.1.jar"
+     dest: "{{home}}/repository/components/dropins/"
+    ignore_errors: False
+
+  - name: DAS configure in AM gateway - copying nashorn_mediator_2.1.1_1.0.0.jar to dropins
+    copy:
+     src: "nashorn_mediator_2.1.1_1.0.0.jar"
+     dest: "{{home}}/repository/components/dropins/"
+    ignore_errors: False
+
+#-------------Copy sequence xml files ------------------------
+  - name: DAS configure in AM gateway - copying WSO2AM--Ext--Out.xml to dropins
+    copy:
+     src: "WSO2AM--Ext--Out.xml"
+     dest: "{{home}}/repository/deployment/server/synapse-configs/default/sequences/"
+    ignore_errors: False
+
+  - name: DAS configure in AM gateway - copying WSO2AM--Ext--In.xml to dropins
+    copy:
+     src: "WSO2AM--Ext--In.xml"
+     dest: "{{home}}/repository/deployment/server/synapse-configs/default/sequences"
+    ignore_errors: False
+
+  - name: DAS configure in AM gateway - Update the operator name in WSO2AM--Ext--Out.xml
+    replace:
+      dest: "{{home}}/repository/deployment/server/synapse-configs/default/sequences/WSO2AM--Ext--Out.xml"
+      regexp: 'OPERATOR'
+      replace: '{{Operator}}'
+      backup: no
+
+#-------------------Start the identity server-------------------
+  - name: DAS configure in AM gateway - Restart API Manager after DAS configurations
+    shell: "{{home}}/bin/./wso2server.sh restart"
+    ignore_errors: True
+
+#-------------------Wait for server to start-------------------
+  - name: DAS configure in AM gateway - Wait for server to restart
+    wait_for:
+      port: "{{(https_port|int)+(gateway_offset|int)}}"
+      delay: 5
+    ignore_errors: True

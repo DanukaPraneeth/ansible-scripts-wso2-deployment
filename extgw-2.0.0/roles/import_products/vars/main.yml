@@ -1,0 +1,12 @@
+---
+# vars file for aws_automation
+## Update the following arrays with the intances you need to start
+
+hub_zip_location: /mnt
+mig_zip_location: /mnt
+zip_location: /mnt
+hub_version: 2.1.0
+is_version: 2.1.0
+
+AM_url: https://s3.amazonaws.com/sftp-release-binaries/sftp/dep/2_1_X/wso2telcohub-2.1.0.zip
+MIG_url: https://s3.amazonaws.com/sftp-release-binaries/sftp/MIG/2_1_X/wso2telcoids-2.1.0.zip

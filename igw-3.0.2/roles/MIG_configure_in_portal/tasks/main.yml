@@ -1,0 +1,181 @@
+---
+  - set_fact:
+      hub_product: "portal/wso2telcohub-{{hub_version}}"
+      https_port: "9443"
+      http_port: "9763"
+
+#-------------------Copy registry.xml------------------
+  - name: mig configurations in am portal - copying registry.xml
+    copy:
+     src: "registry.xml"
+     dest: "{{extract_location}}/{{hub_product}}/repository/conf"
+
+#-------------------Mysql Changes in registry.xml------------------
+  - name: mig configurations in am portal - Change dbConfig sharedregistry to govregistry repository/conf/registry.xml
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/conf/registry.xml"
+      regexp: 'mysql_user'
+      replace: '{{mysql_user}}'
+      backup: no
+
+  - name: mig configurations in am portal - Change dbConfig sharedregistry to govregistry repository/conf/registry.xml
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/conf/registry.xml"
+      regexp: 'mysql_port'
+      replace: '{{mysql_port}}'
+      backup: no
+
+  - name: mig configurations in am portal - Change dbConfig sharedregistry to govregistry repository/conf/registry.xml
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/conf/registry.xml"
+      regexp: 'mysql_host'
+      replace: '{{mysql_host}}'
+      backup: no
+
+#-------------------Change dbConfig sharedregistry to govregistry ------------------
+  - name: mig configurations in am portal - Change dbConfig sharedregistry to govregistry repository/conf/registry.xml
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/conf/registry.xml"
+      regexp: 'sharedregistry'
+      replace: 'govregistry'
+      backup: no
+
+#-------------------Change offset---------------------------
+#-------------------Copy api-manager.xml to hub-------------------
+  - name: mig configurations in am portal - copying api-manager.xml to repository/conf
+    copy:
+     src: "api-manager.xml"
+     dest: "{{extract_location}}/{{hub_product}}/repository/conf/api-manager.xml"
+
+#-------------------Point AuthManager and APIKeyValidator to IS------------------
+
+#------ replacing the port and the IP  with the DNS name ----------------
+
+  - name: mig configurations in am portal - Point AuthManager and APIKeyValidator to IS
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/conf/api-manager.xml"
+      regexp: 'IS_NAME'
+      replace: '{{is_name}}'
+      backup: no
+
+  - name: mig configurations in am portal - APIM v3.0.0 configuration - insert the portal domain name
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/conf/api-manager.xml"
+      regexp: 'PORTAL'
+      replace: '{{is_host}}'
+      backup: no
+
+#-------------------Change KeyValidatorClientType in api-manager.xml in hub------------------
+  - name: mig configurations in am portal - Change KeyValidatorClientType in api-manager.xml in hub
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/conf/api-manager.xml"
+      regexp: '<KeyValidatorClientType>ThriftClient</KeyValidatorClientType>'
+      replace: '<KeyValidatorClientType>WSClient</KeyValidatorClientType>'
+      backup: no
+
+#-------------------Change EnableThriftServer to false in api-manager.xml in hub------------------
+  - name: mig configurations in am portal - Change KeyValidatorClientType in api-manager.xml in hub
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/conf/api-manager.xml"
+      regexp: '<EnableThriftServer>true</EnableThriftServer>'
+      replace: '<EnableThriftServer>false</EnableThriftServer>'
+      backup: no
+
+#-------------------Portal configurations  in api-manager.xml in hub------------------
+  - name: mig configurations in am portal - Configure portal Changes in api-manager.xml in hub
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/conf/api-manager.xml"
+      regexp: 'GATEWAY'
+      replace: '{{portal_name}}'
+      backup: no
+
+  - name: mig configurations in am portal - Configure portal Changes in api-manager.xml in hub
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/conf/api-manager.xml"
+      regexp: 'APIENDPOINT1'
+      replace: '{{gateway_http_api_endpoint}}'
+      backup: no
+
+  - name: mig configurations in am portal - Configure portal Changes in api-manager.xml in hub
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/conf/api-manager.xml"
+      regexp: 'APIENDPOINT2'
+      replace: '{{gateway_https_api_endpoint}}'
+      backup: no
+
+#-------------------Point AuthorizedAPI, RevokeAPI and TokenAPI to IS------------------
+  - name: mig configurations in am portal - Point AuthorizedAPI to IS
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/deployment/server/synapse-configs/default/api/_AuthorizeAPI_.xml"
+      regexp: 'https://{uri.var.hostname}:{uri.var.portnum}'
+      replace: 'https://{{is_name}}'
+      backup: no
+
+  - name: mig configurations in am portal - Point RevokeAPI to IS
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/deployment/server/synapse-configs/default/api/_RevokeAPI_.xml"
+      regexp: 'https://{uri.var.hostname}:{uri.var.portnum}'
+      replace: 'https://{{is_name}}'
+      backup: no
+
+  - name: mig configurations in am portal - Point TokenAPI to IS
+    replace:
+      dest: "{{extract_location}}/{{hub_product}}/repository/deployment/server/synapse-configs/default/api/_TokenAPI_.xml"
+      regexp: 'https://{uri.var.hostname}:{uri.var.portnum}'
+      replace: 'https://{{is_name}}'
+      backup: no
+
+#-------------------Start the identity server-------------------
+  - name: mig configurations in am portal - Start API Manager
+    shell: "{{extract_location}}/{{hub_product}}/bin/./wso2server.sh start"
+    ignore_errors: True
+
+#-------------------Wait for server to start-------------------
+  - name: mig configurations in am portal - Wait for server to start
+    wait_for:
+      port: "{{(https_port|int)+(portal_offset|int)}}"
+      delay: 5
+    ignore_errors: False
+
+##-------------------Change site.json according to the offset-----------------
+#  - name: mig configurations in am portal - Change https port in site.json file
+#    replace:
+#      dest: "{{extract_location}}/{{hub_product}}/repository/deployment/server/jaggeryapps/manage/site/conf/site.json"
+#      regexp: '9443'
+#      replace: '{{(https_port|int)+(portal_offset|int)}}'
+#      backup: no
+#
+#  - name: mig configurations in am portal - Change http port in site.json file
+#    replace:
+#      dest: "{{extract_location}}/{{hub_product}}/repository/deployment/server/jaggeryapps/manage/site/conf/site.json"
+#      regexp: '9763'
+#      replace: '{{(http_port|int) + (portal_offset|int)}}'
+#      backup: no
+#
+##-------------------setup IS url in site.json------------------
+#  - name: mig configurations in am portal - Change IS url in site.json
+#    replace:
+#      dest: "{{extract_location}}/{{hub_product}}/repository/deployment/server/jaggeryapps/manage/site/conf/site.json"
+#      regexp: '"IS_URL" : "https://localhost:9444/"'
+#      replace: '"IS_URL" : "https://{{is_name}}/"'
+#      backup: no
+#
+##-------------------Extract wso2telcohub-2.1.0 patch file-------------------
+#  - unarchive:
+#     src: "{{zip_location}}/WSO2Telco-DEP-{{product_version}}-001.zip"
+#     dest: "{{extract_location}}/"
+#     copy: no
+#
+#
+#  - name: mig configuration in am portal - Remove the existing file before copying the patch file
+#    file:
+#      path: "{{extract_location}}/{{hub_product}}/repository/deployment/server/jaggeryapps/manage/modules/taskmanager/get.jag"
+#      state: absent
+#    ignore_errors: False
+#
+##-------------------Copy the patch files-------------------
+#  - name: mig configuration in am portal - copying patch file - get.jag
+#    shell: cp {{ item }} {{extract_location}}/{{hub_product}}/repository/deployment/server/jaggeryapps/manage/modules/taskmanager
+#    become: yes
+#    with_items: "{{extract_location}}/WSO2Telco-DEP-{{product_version}}-001/resources/manage/modules/taskmanager/get.jag"
+#    ignore_errors: False

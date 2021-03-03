@@ -1,0 +1,42 @@
+---
+  # - name: install python pip on aws servers
+  #   shell: ssh  "{{ansible_user}}"@"{{item}}" "sudo easy_install pip"
+  #   with_items:
+  #     - "{{AM_server_1_ip}}"
+  #     - "{{MIG_server_1_ip}}"
+  #     - "{{DAS_server_1_ip}}"
+  #     - "{{DB_server_M_ip}}"
+
+  # - name: install ansible on aws servers
+  #   shell: ssh "{{ansible_user}}"@"{{item}}" "sudo pip install ansible"
+  #   with_items:
+  #     - "{{AM_server_1_ip}}"
+  #     - "{{MIG_server_1_ip}}"
+  #     - "{{DAS_server_1_ip}}"
+  #     - "{{DB_server_M_ip}}"
+
+  - name: Update the variables with newly created AM EC2 instance's IP address
+    local_action: lineinfile
+                  dest={{item.dest}}
+                  regexp={{item.regex}}
+                  insertafter={{item.insertafter}} line="{{item.line}}"
+    ignore_errors: True
+    with_items:
+      - { dest: "./roles/create_DB/vars/main.yml", regex: "hub_host_1:", insertafter: "hub_host_1:" , line: "hub_host_1:\ {{AM_server_1_ip}}"}
+      - { dest: "./roles/create_DB/vars/main.yml", regex: "is_host_1:", insertafter: "is_host_1:" , line: "is_host_1:\ {{MIG_server_1_ip}}"}
+      - { dest: "./roles/create_DB/vars/main.yml", regex: "das_host_1:", insertafter: "das_host_1:" , line: "das_host_1:\ {{DAS_server_1_ip}}"}
+      - { dest: "./roles/configure_the_AM_gateway/vars/main.yml", regex: "mysql_host:", insertafter: "mysql_host:" , line: "mysql_host:\ {{DB_domain_name}}"}
+      - { dest: "./roles/configure_the_AM_gateway/vars/main.yml", regex: "AM_domain_name:", insertafter: "AM_domain_name:" , line: "AM_domain_name:\ {{AM_domain_name}}"}
+      - { dest: "./roles/configure_the_AM_portal/vars/main.yml", regex: "mysql_host:", insertafter: "mysql_host:" , line: "mysql_host:\ {{DB_domain_name}}"}
+      - { dest: "./roles/configure_the_AM_portal/vars/main.yml", regex: "am_host:", insertafter: "am_host:" , line: "am_host:\ {{AM_domain_name}}"}
+      - { dest: "./roles/MIG_configure_in_gateway/vars/main.yml", regex: "mysql_host:", insertafter: "mysql_host:" , line: "mysql_host:\ {{DB_domain_name}}"}
+      - { dest: "./roles/MIG_configure_in_portal/vars/main.yml", regex: "mysql_host:", insertafter: "mysql_host:" , line: "mysql_host:\ {{DB_domain_name}}"}
+      - { dest: "./roles/configure_DAS/vars/main.yml", regex: "mysql_host:", insertafter: "mysql_host:" , line: "mysql_host:\ {{DB_domain_name}}"}
+      - { dest: "./roles/configure_DAS/vars/main.yml", regex: "DAS_domain_name:", insertafter: "DAS_domain_name:" , line: "DAS_domain_name:\ {{DAS_domain_name}}"}
+      - { dest: "./roles/configure_the_MIG/vars/main.yml", regex: "mysql_host:", insertafter: "mysql_host:" , line: "mysql_host:\ {{DB_domain_name}}"}
+      - { dest: "./roles/configure_the_MIG/vars/main.yml", regex: "MIG_domain_name:", insertafter: "MIG_domain_name:" , line: "MIG_domain_name:\ {{MIG_domain_name}}"}
+      - { dest: "./roles/km_configuration_in_MIG/vars/main.yml", regex: "mysql_host:", insertafter: "mysql_host:" , line: "mysql_host:\ {{DB_domain_name}}"}
+      - { dest: "./roles/MIG_configure_in_gateway/vars/main.yml", regex: "is_name:", insertafter: "is_name:" , line: "is_name:\ {{MIG_server}}"}
+      - { dest: "./roles/MIG_configure_in_portal/vars/main.yml", regex: "is_name:", insertafter: "is_name:" , line: "is_name:\ {{MIG_server}}"}
+      - { dest: "./roles/MIG_configure_in_gateway/vars/main.yml", regex: "is_host:", insertafter: "is_host:" , line: "is_host:\ {{MIG_domain_name}}"}
+      - { dest: "./roles/MIG_configure_in_portal/vars/main.yml", regex: "is_host:", insertafter: "is_host:" , line: "is_host:\ {{MIG_domain_name}}"}

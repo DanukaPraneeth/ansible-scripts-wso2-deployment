@@ -1,0 +1,8 @@
+---
+
+#  - name: Install unzip
+#    yum: pkg=unzip=6.0* state=present
+
+  - name: install unzip
+    yum: pkg=unzip state=present
+

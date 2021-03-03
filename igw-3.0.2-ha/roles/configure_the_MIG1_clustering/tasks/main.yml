@@ -1,0 +1,71 @@
+---
+- set_fact:
+   mig_product: "{{extract_location}}/wso2telcoids-{{mig_version}}"
+
+
+- name: AM cluster configuration for gateway - copying axis2.xml
+  copy:
+    src: "axis2.xml"
+    dest: "{{mig_product}}/repository/conf/axis2"
+
+#-------------- MIG configurations -----------------------
+
+#- name: AM cluster configuration for gateway - Enable HazelcastClusteringAgent in axis2.xml file
+#  replace:
+#    dest: "{{mig_product}}/repository/conf/axis2/axis2.xml"
+#    regexp: 'enable="false">'
+#    replace: 'enable="true">'
+#    backup: no
+
+- name: AM cluster configuration for gateway - Change multicast to wka in axis2.xml file
+  replace:
+    dest: "{{mig_product}}/repository/conf/axis2/axis2.xml"
+    regexp: '<parameter name="membershipScheme">multicast'
+    replace: '<parameter name="membershipScheme">wka'
+    backup: no
+
+- name: AM cluster configuration for gateway - Enable HazelcastClusteringAgent in axis2.xml file
+  replace:
+    dest: "{{mig_product}}/repository/conf/axis2/axis2.xml"
+    regexp: '<parameter name="domain">wso2.carbon.domain'
+    replace: '<parameter name="domain">{{mig_host}}'
+    backup: no
+
+- name: AM cluster configuration for gateway - Enable HazelcastClusteringAgent in axis2.xml file
+  replace:
+    dest: "{{mig_product}}/repository/conf/axis2/axis2.xml"
+    regexp: '<parameter name="localMemberHost">127.0.0.1'
+    replace: '<parameter name="localMemberHost">{{local_IP}}'
+    backup: no
+
+- name: AM cluster configuration for gateway - Enable HazelcastClusteringAgent in axis2.xml file
+  replace:
+    dest: "{{mig_product}}/repository/conf/axis2/axis2.xml"
+    regexp: '<parameter name="localMemberPort">4000'
+    replace: '<parameter name="localMemberPort">{{local_port}}'
+    backup: no
+
+- name: AM cluster configuration for gateway - Enable HazelcastClusteringAgent in axis2.xml file
+  replace:
+    dest: "{{mig_product}}/repository/conf/axis2/axis2.xml"
+    regexp: '<hostName>127.0.0.1'
+    replace: '<hostName>{{local_IP}}'
+    backup: no
+
+- name: AM cluster configuration for gateway - Enable HazelcastClusteringAgent in axis2.xml file
+  replace:
+    dest: "{{mig_product}}/repository/conf/axis2/axis2.xml"
+    regexp: '<port>4000'
+    replace: '<port>{{local_port}}'
+    backup: no
+
+- name: AM cluster configuration for gateway - insert new member lines to axis2.xml
+  blockinfile:
+    dest: "{{mig_product}}/repository/conf/axis2/axis2.xml"
+    marker: <!-- Add new member -->
+    insertafter: "</member>"
+    content: |
+             <member>
+                 <hostName>{{remote_IP}}</hostName>
+                 <port>{{remote_port}}</port>
+             </member>

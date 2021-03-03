@@ -1,0 +1,10 @@
+---
+# vars file for aws_automation
+## Update the following arrays with the intances you need to start
+
+#Java installation variables
+download: https://s3.amazonaws.com/sftp-release-binaries/sftp/jdk/jdk-8u144-linux-x64.rpm
+pack: jdk-8u144-linux-x64.rpm
+
+#mysql installation variables
+mysql_root_pass: Telco@1234         #make sure that this password is complex as per the security policy

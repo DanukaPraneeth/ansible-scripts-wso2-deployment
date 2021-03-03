@@ -1,0 +1,22 @@
+---
+
+mysql_host: db.com
+mysql_user: am_user
+mysql_password: AM_user@123
+mysql_port: 3306
+
+
+hub_version: 3.0.2
+
+portal_name: localhost:9444        # chage the port according to the portal offset
+gateway_http_api_endpoint: localhost:8280   # <------------------ Give the domain and ports correspond to the offset of the gateway
+gateway_https_api_endpoint: localhost:8243  # <------------------ Give the domain and ports correspond to the offset of the gateway
+
+is_name: mig.com:9443
+is_host: mig.com
+
+portal_offset: 1
+mig_offset: 0
+
+extract_location: /mnt
+zip_location: /mnt

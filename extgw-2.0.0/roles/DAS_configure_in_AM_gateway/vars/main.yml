@@ -1,0 +1,7 @@
+---
+
+product_version: 2.1.0
+hub_home: /mnt
+hub_offset: 0
+
+Operator: Celcom           # Operator name to be placed at WSO2AM--Ext--Out.xml

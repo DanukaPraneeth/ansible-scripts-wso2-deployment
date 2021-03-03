@@ -1,0 +1,21 @@
+---
+# CHANGE FOLLOWING PROPERTIES ACCORDINGLY
+
+# host of mysql server
+mysql_host: db.com
+mysql_user: mediation_user
+mysql_password: mediation_user123
+
+mediation_zip_location: /mnt
+esb_zip_location: /mnt
+
+esb_extract_location: /mnt
+mediation_extract_location: /mnt
+
+mediation_version: v2.0.0
+esb_version: 5.0.0
+
+offset: 0
+
+java_home: /usr
+export_java: "yes"

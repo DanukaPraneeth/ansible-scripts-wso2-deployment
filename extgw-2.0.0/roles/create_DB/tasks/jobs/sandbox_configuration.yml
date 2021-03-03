@@ -1,0 +1,29 @@
+---
+
+  - name: Sandbox DB configurations - Setup database for sandbox
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'SOURCE {{hub_extract_location}}/dep-sandbox1_7_0.sql'
+    when: import_dbs == "yes"
+    ignore_errors: True
+
+  - name: Sandbox DB configurations - grant permission to sandbox database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON sandbox.* TO '{{sandbox_mysql_user}}'@'{{sandbox_host}}' IDENTIFIED BY "{{sandbox_mysql_password}}";'
+    when: import_dbs == "yes"
+
+#----------------------- Uncomment following script execution depending on your requirement --------------------------
+
+#  - name: Sandbox DB configurations - Rename localhost with the IP of the MIG server in dbupdatefornewpack.sql for the proddepdb database
+#    replace:
+#      dest: "{{hub_extract_location}}/dbupdatefornewpack.sql"
+#      regexp: 'localhost'
+#      replace: '{{is_host_1}}'
+#      backup: yes
+#
+#  - name: Sandbox DB configurations - Configure sandbox with proddepdb
+#    shell: mysql -uroot -p{{mysql_root_pass}} -e 'SOURCE {{hub_extract_location}}/dbupdatefornewpack.sql'
+#    when: import_dbs == "yes"
+#    ignore_errors: True
+
+#--------------------------------------------------------------------------------------------------------------------------
+  - name: Sandbox DB configurations - grant permission to proddepdb database
+    shell: mysql -uroot -p{{mysql_root_pass}} -e 'GRANT ALL ON proddepdb.* TO '{{sandbox_mysql_user}}'@'{{sandbox_host}}' IDENTIFIED BY "{{sandbox_mysql_password}}";'
+    when: import_dbs == "yes"

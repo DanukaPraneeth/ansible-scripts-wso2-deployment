@@ -1,0 +1,7 @@
+---
+# COMPULSORY TO CHANGE FOLLOWING PROPERTIES
+mysql_root_pass: Telco@1234
+
+hub_extract_location: /mnt
+hub_product_version: 3.0.2
+import_dbs: "yes"

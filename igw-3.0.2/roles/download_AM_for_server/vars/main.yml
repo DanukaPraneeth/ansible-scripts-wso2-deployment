@@ -1,0 +1,9 @@
+---
+# vars file for aws_automation
+## Update the following arrays with the intances you need to start
+
+zip_location: /mnt
+extract_location: /mnt
+product_version: 3.0.2
+download_link: https://s3.amazonaws.com/sftp-release-binaries/sftp/dep/3_0_X/wso2telcohub-3.0.2.zip
+

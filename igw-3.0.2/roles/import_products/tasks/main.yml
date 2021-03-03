@@ -1,0 +1,14 @@
+---
+#-------------------------- Import AM -------------------------------
+  - name: DB server import files - download the wso2 API manager to the DB servers
+    get_url:
+      url: "{{AM_url}}"
+      dest: "{{hub_zip_location}}/wso2telcohub-{{hub_version}}.zip"
+      mode: 0755
+
+  - name: DB server import files - download the wso2 MIG to the DB servers
+    get_url:
+      url: "{{MIG_url}}"
+      dest: "{{mig_zip_location}}/wso2telcoids-{{is_version}}.zip"
+      mode: 0755
+

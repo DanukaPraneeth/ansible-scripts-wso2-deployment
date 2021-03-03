@@ -1,0 +1,14 @@
+---
+  - name: install wget
+    yum: pkg=wget state=present
+
+  - name: download Javas
+    get_url:
+      url: "{{ download }}"
+      dest: /tmp
+      force: no
+
+  - name: unpack Java8 packages
+    command:  rpm -ivh /tmp/"{{ pack }}"
+    args:
+      warn: no

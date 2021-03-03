@@ -1,0 +1,24 @@
+---
+# vars file for aws_automation
+## Update the following arrays with the intances you need to start
+
+AM_server_1_ip: 18.221.43.255
+AM_server_2_ip: 18.221.43.2
+Gateway_domain_name: am.com
+Portal_domain_name: am.com
+
+MIG_server_1_ip: 18.218.235.207
+MIG_server_2_ip: 1.218.235.20
+MIG_domain_name: mig.com
+
+DAS_server_1_ip: 52.14.99.252
+DAS_server_1_private_ip: 52.2484
+DAS_server_2_ip: 20.142.949.52
+DAS_server_2_private_ip: 56.325.32
+DAS_domain_name: das.com
+
+DB_server_M_ip: 13.59.214.173
+DB_server_S_ip: 13.59.214.173
+DB_domain_name: db.com
+
+ansible_user: centos

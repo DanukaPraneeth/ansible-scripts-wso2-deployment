@@ -1,0 +1,9 @@
+---
+# CHANGE FOLLOWING PROPERTIES ACCORDINGLY
+
+# location of the wso2telco_esb_hub-v2.0.0.zip
+esb_extract_location: /mnt
+esb_version: 5.0.0
+
+httpsPassword: wso2telco@123
+KeyAlias: ncelwso2telco

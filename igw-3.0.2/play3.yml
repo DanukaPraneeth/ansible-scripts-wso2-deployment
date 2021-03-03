@@ -1,0 +1,12 @@
+---
+
+- name: Internal gateway setup automation process
+  hosts: MIG_server_1
+  become: true
+  become_method: sudo
+  gather_facts: True
+  tags: MIG
+
+  roles:
+    - km_configuration_in_MIG
+    - configure_MIG_security

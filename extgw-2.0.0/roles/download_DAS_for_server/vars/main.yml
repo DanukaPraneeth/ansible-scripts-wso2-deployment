@@ -1,0 +1,7 @@
+---
+# vars file for aws_automation
+## Update the following arrays with the intances you need to start
+
+extract_location: /mnt
+analytics_version: 2.0.0
+download_link: https://s3.amazonaws.com/sftp-release-binaries/sftp/ext-gw-analytics/2_0_X/wso2analytics-extgw-2.0.0.zip

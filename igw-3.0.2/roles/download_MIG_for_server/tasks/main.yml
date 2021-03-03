@@ -1,0 +1,8 @@
+---
+#-------------------Start the identity server-------------------
+
+  - name: download the the MIG product to the MIG servers
+    get_url:
+      url: "{{download_link}}"
+      dest: "{{zip_location}}/wso2telcoids-{{product_version}}.zip"
+      mode: 0755

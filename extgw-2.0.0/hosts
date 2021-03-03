@@ -1,0 +1,27 @@
+[local]
+localhost ansible_connection=local
+
+[AM_server_1]
+18.221.43.255
+
+[MIG_server_1]
+18.218.235.207
+
+[DAS_server_1]
+52.14.99.252
+
+[Mediation_server_1]
+52.14.99.252
+
+[DB_server_M]
+18.218.45.148
+
+
+[all:vars]
+ansible_connection=ssh
+ansible_ssh_user=centos
+ansible_ssh_pass=Danuka@123
+
+ansible_python_interpreter=/usr/bin/python2.7
+
+

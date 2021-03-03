@@ -1,0 +1,128 @@
+---
+  - set_fact:
+     pack_location: "{{analytic_extract_location}}/wso2telcoAnalytics-ingw-{{product_version}}"
+
+
+#----------------Default configurations in the pack ---------------------
+## axis2.xml
+#--- <clustering class="org.wso2.carbon.core.clustering.hazelcast.HazelcastClusteringAgent  enable="false">
+#--- <parameter name="membershipScheme">wka</parameter>
+
+## event-processor.xml
+#--- <mode name="HA" enable="true">
+#--- <mode name="Distributed" enable="false">
+#--- <persistence enable="false">
+#--- <mode name="SingleNode"  enable="false">
+
+## spark-defaults.conf
+#--- carbon.spark.master carbon
+#--- carbon.spark.master.count  2
+
+## analytics-config.xml
+#--- uncomment taxonomy-writer-cache
+#---  <LRUType>STRING</LRUType>
+#---  <cacheType>LRU</cacheType>
+
+
+  - name: configure DAS clustering - copying axis2.xml
+    copy:
+     src: "axis2.xml"
+     dest: "{{pack_location}}/repository/conf/axis2/"
+    ignore_errors: False
+
+  - name: AM cluster configuration for gateway - Change multicast to wka in axis2.xml file
+    replace:
+      dest: "{{pack_location}}/repository/conf/axis2/axis2.xml"
+      regexp: '<parameter name="membershipScheme">multicast'
+      replace: '<parameter name="membershipScheme">wka'
+      backup: no
+
+  - name: AM cluster configuration for gateway - Enable HazelcastClusteringAgent in axis2.xml file
+    replace:
+      dest: "{{pack_location}}/repository/conf/axis2/axis2.xml"
+      regexp: '<parameter name="domain">wso2.carbon.domain'
+      replace: '<parameter name="domain">{{DAS_domain_name}}'
+      backup: no
+
+  - name: AM cluster configuration for gateway - Enable HazelcastClusteringAgent in axis2.xml file
+    replace:
+      dest: "{{pack_location}}/repository/conf/axis2/axis2.xml"
+      regexp: '<parameter name="localMemberHost">127.0.0.1'
+      replace: '<parameter name="localMemberHost">{{node1_IP}}'
+      backup: no
+
+  - name: AM cluster configuration for gateway - Enable HazelcastClusteringAgent in axis2.xml file
+    replace:
+      dest: "{{pack_location}}/repository/conf/axis2/axis2.xml"
+      regexp: '<parameter name="localMemberPort">4000'
+      replace: '<parameter name="localMemberPort">{{node1_PORT}}'
+      backup: no
+
+  - name: AM cluster configuration for gateway - Enable HazelcastClusteringAgent in axis2.xml file
+    replace:
+      dest: "{{pack_location}}/repository/conf/axis2/axis2.xml"
+      regexp: '<hostName>127.0.0.1'
+      replace: '<hostName>{{node1_IP}}'
+      backup: no
+
+  - name: AM cluster configuration for gateway - Enable HazelcastClusteringAgent in axis2.xml file
+    replace:
+      dest: "{{pack_location}}/repository/conf/axis2/axis2.xml"
+      regexp: '<port>4000'
+      replace: '<port>{{node1_PORT}}'
+      backup: no
+
+  - name: AM cluster configuration for gateway - insert new member lines to axis2.xml
+    blockinfile:
+      dest: "{{pack_location}}/repository/conf/axis2/axis2.xml"
+      marker: <!-- Add new member -->
+      insertafter: "</member>"
+      content: |
+               <member>
+                   <hostName>{{node2_IP}}</hostName>
+                   <port>{{node2_PORT}}</port>
+               </member>
+
+  - name: configure DAS clustering - copying event-processor.xml
+    copy:
+     src: "event-processor.xml"
+     dest: "{{pack_location}}/repository/conf/"
+    ignore_errors: False
+
+  - name: configure DAS clustering - Update node ip in event-processor.xml
+    replace:
+      dest: "{{pack_location}}/repository/conf/event-processor.xml"
+      regexp: '<mode name="HA" enable="false">'
+      replace: '<mode name="HA" enable="true">'
+      backup: no
+
+  - name: configure DAS clustering - Update node ip in event-processor.xml
+    replace:
+      dest: "{{pack_location}}/repository/conf/event-processor.xml"
+      regexp: 'node_IP'
+      replace: '{{node_private_IP}}'
+      backup: no
+
+#----------------------- Create the folder for symlink--------------------------------
+  - name: Creates directory to cluster symlink
+    file: path="{{symLink_path}}" state=directory
+
+#-------------------Shell command for the symlink-------------------
+  - name: DAS configure in AM gateway - Shell command for the symlink
+    shell: "ln -s {{pack_location}}/ {{symLink_path}}/das"
+    ignore_errors: True
+
+  - name: configure DAS clustering - copying spark-defaults.conf
+    copy:
+     src: "spark-defaults.conf"
+     dest: "{{pack_location}}/repository/conf/analytics/spark/"
+    ignore_errors: False
+
+  - name: configure DAS clustering - Update symLink_path in spark-defaults.conf
+    replace:
+      dest: "{{pack_location}}/repository/conf/analytics/spark/spark-defaults.conf"
+      regexp: 'LOCATION'
+      replace: '{{symLink_path}}/das'
+      backup: no
+
+

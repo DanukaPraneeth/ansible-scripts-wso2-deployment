@@ -1,0 +1,24 @@
+---
+# CHANGE THE FOLLOWING PROPERTIES ACCORDINGLY
+
+product_version: 3.0.2
+
+portal_location: /mnt/portal
+gateway_location: /mnt/gateway
+
+remote_portal_location: /mnt/portal
+remote_login_user: root     # in addition to the default root user
+
+rsync_folder: /mnt/rsync
+
+# comment on of the following according to your os
+RH6: https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
+RH7: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+# package name
+cron_package: crontabs
+# service name
+cron_service_name: crond
+
+host_ip: 13.58.109.76
+remote_host_ip: 13.58.196.237

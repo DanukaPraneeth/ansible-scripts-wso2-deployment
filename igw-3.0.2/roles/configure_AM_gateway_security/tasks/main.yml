@@ -1,0 +1,232 @@
+---
+  - set_fact:
+     gateway_location: "{{extract_location}}/gateway/wso2telcohub-{{product_version}}"
+     https_port: "9443"
+     P24_name: "{{patch_location}}/wso2telco-component-dep-2.4.2-00024"
+     P25_name: "{{patch_location}}/wso2telco-manage-module-ui-2.0.4-00025"
+
+
+#-------------------Start the identity server-------------------
+  - name: STOP gateway Server
+    shell: "{{gateway_location}}/bin/./wso2server.sh stop"
+    ignore_errors: True
+
+#----------------------- Create the patch folder --------------------------------
+  - name: Creates directory
+    file: path=/mnt/patches state=directory
+
+#------------------------------ CONFIGURE CERTIFICATES ----------------------------------------
+#-------------------Remove the existing certificate files-------------------
+  - name: AM https, patch configuration for gateway - Remove the existing wso2carbon.jks file before copying the new certificate file
+    file:
+      path: "{{gateway_location}}/repository/resources/security/wso2carbon.jks"
+      state: absent
+    ignore_errors: False
+
+#-------------------Copy the certificate files-------------------
+  - name: AM https, patch configuration for gateway - copying certificate file - wso2carbon.jks
+    copy:
+     src: "wso2carbon.jks"
+     dest: "{{gateway_location}}/repository/resources/security/"
+    ignore_errors: False
+
+#-------------------Remove the existing certificate files-------------------
+  - name: AM https, patch configuration for gateway - Remove the existing client-truststore.jks file before copying the new certificate file
+    file:
+      path: "{{gateway_location}}/repository/resources/security/client-truststore.jks"
+      state: absent
+    ignore_errors: False
+
+#-------------------Copy the certificate files-------------------
+  - name: AM https, patch configuration for gateway - copying certificate file - client-truststore.jks
+    copy:
+     src: "client-truststore.jks"
+     dest: "{{gateway_location}}/repository/resources/security/"
+    ignore_errors: False
+
+#-------------------Copy analytics-datasources.xml-------------------
+  - name: AM https, patch configuration for gateway - copying broker.xml to repository/conf
+    copy:
+     src: "hub-broker.xml"
+     dest: "{{gateway_location}}/repository/conf/broker.xml"
+
+#-------------------Change analytics-datasources.xml.xml-------------------
+  - name: AM https, patch configuration for gateway - configure AMQP and MQTT transports
+    replace:
+      dest: "{{gateway_location}}/repository/conf/broker.xml"
+      regexp: '{password}'
+      replace: '{{httpsPassword}}'
+      backup: no
+
+#--------------------------- configuring keystores for security in identity.xml--------------------------------
+  - name: AM https, patch configuration for gateway - Configuring keystores for security in identity.xml
+    replace:
+      dest: "{{gateway_location}}/repository/conf/identity/identity.xml"
+      regexp: '<Password>wso2carbon</Password>'
+      replace: '<Password>{{httpsPassword}}</Password>'
+      backup: no
+
+#------------------------------Configuring keystores for endpoints--------------------
+  - name: AM https, patch configuration for gateway - Configuring keystores for endpoints EndpointConfig.properties
+    replace:
+      dest: "{{gateway_location}}/repository/conf/identity/EndpointConfig.properties"
+      regexp: 'Carbon.Security.KeyStore.Password=wso2carbon'
+      replace: 'Carbon.Security.KeyStore.Password={{httpsPassword}}'
+      backup: no
+
+  - name: AM https, patch configuration for gateway - Configuring keystores for endpoints EndpointConfig.properties
+    replace:
+      dest: "{{gateway_location}}/repository/conf/identity/EndpointConfig.properties"
+      regexp: 'Carbon.Security.TrustStore.Password=wso2carbon'
+      replace: 'Carbon.Security.TrustStore.Password={{httpsPassword}}'
+      backup: no
+
+#----------------------Configuring keystores in carbon.xml----------------------------------------
+  - name: AM https, patch configuration for gateway - Configuring keystores in carbon.xml - Password
+    replace:
+      dest: "{{gateway_location}}/repository/conf/carbon.xml"
+      regexp: '<Password>wso2carbon</Password>'
+      replace: '<Password>{{httpsPassword}}</Password>'
+      backup: no
+
+  - name: AM https, patch configuration for gateway - Configuring keystores in carbon.xml - KeyAlias
+    replace:
+      dest: "{{gateway_location}}/repository/conf/carbon.xml"
+      regexp: '<KeyAlias>wso2carbon</KeyAlias>'
+      replace: '<KeyAlias>{{KeyAlias}}</KeyAlias>'
+      backup: no
+
+  - name: AM https, patch configuration for gateway - Configuring keystores in carbon.xml
+    replace:
+      dest: "{{gateway_location}}/repository/conf/carbon.xml"
+      regexp: '<KeyPassword>wso2carbon</KeyPassword>'
+      replace: '<KeyPassword>{{httpsPassword}}</KeyPassword>'
+      backup: no
+
+
+#----------------------Configuring keystores in axis2.xml----------------------------------------
+  - name: AM https, patch configuration for gateway - Configuring keystores in axis2.xml - Password
+    replace:
+      dest: "{{gateway_location}}/repository/conf/axis2/axis2.xml"
+      regexp: '<Password>wso2carbon</Password>'
+      replace: '<Password>{{httpsPassword}}</Password>'
+      backup: no
+
+  - name: AM https, patch configuration for gateway - Configuring keystores in axis2.xml - KeyPassword
+    replace:
+      dest: "{{gateway_location}}/repository/conf/axis2/axis2.xml"
+      regexp: '<KeyPassword>wso2carbon</KeyPassword>'
+      replace: '<KeyPassword>{{httpsPassword}}</KeyPassword>'
+      backup: no
+
+#----------------------Configuring keystores in catalina-server.xml----------------------------------------
+  - name: AM https, patch configuration for gateway - Configuring keystores in catalina-server.xml
+    replace:
+      dest: "{{gateway_location}}/repository/conf/tomcat/catalina-server.xml"
+      regexp: 'keystorePass="wso2carbon"'
+      replace: 'keystorePass="{{httpsPassword}}"'
+      backup: no
+
+#-------------------------------- APPLY PATCHES ---------------------------------------------------------
+
+#-------------------- Download the patch file -------------------------------------
+  - name: AM https, patch configuration for gateway - download the patch file - patch0417
+    get_url:
+      url: "{{patch417}}"
+      dest: "{{extract_location}}/"
+      mode: 0755
+
+##-------------------Extract the patch file-------------------
+  - name: AM https, patch configuration for gateway - extract the patch file to the product pack - patch 0417
+    unarchive:
+     src: "{{extract_location}}/patch0417.zip"
+     dest: "{{gateway_location}}/repository/components/patches/"
+     copy: no
+
+#--------------------- Apply the patch files - PATCH 00024-----------------------------------
+
+  - name: AM https, patch configuration for gateway - download the patch file - patch00024
+    get_url:
+      url: "{{patch24}}"
+      dest: "{{patch_location}}/"
+      mode: 0755
+
+  - name: AM https, patch configuration for gateway - extract the patch file - patch00024
+    unarchive:
+     src: "{{patch_location}}/wso2telco-component-dep-2.4.2-00024.tar.gz"
+     dest: "{{patch_location}}/"
+     copy: no
+
+  - name: AM https, patch configuration for gateway - copying patch file to the pack
+    shell: cp -r {{ item }} {{gateway_location}}/repository/components/patches/
+    become: yes
+    with_items: "{{P24_name}}/patch_dep00024"
+    ignore_errors: False
+
+  - name: AM https, patch configuration for gateway - Remove the existing workflow-service file before copying the patch file
+    file:
+      path: "{{gateway_location}}/repository/deployment/server/webapps/workflow-service"
+      state: absent
+    ignore_errors: False
+
+  - name: AM https, patch configuration for gateway - Remove the existing workflow-service.war file before copying the patch file
+    file:
+      path: "{{gateway_location}}/repository/deployment/server/webapps/workflow-service.war"
+      state: absent
+    ignore_errors: False
+
+  - name: AM https, patch configuration for gateway - copying patch file - workflow-service.war
+    shell: cp {{ item }} {{gateway_location}}/repository/deployment/server/webapps/
+    become: yes
+    with_items: "{{P24_name}}/war/workflow-service.war"
+    ignore_errors: False
+
+  - name: AM https, patch configuration for gateway - Remove the existing store.zip file before copying the patch file
+    file:
+      path: "{{gateway_location}}/repository/deployment/server/jaggeryapps/store.zip"
+      state: absent
+    ignore_errors: False
+
+  - name: AM https, patch configuration for gateway - copying patch file - store.zip
+    shell: cp {{ item }} {{gateway_location}}/repository/deployment/server/jaggeryapps/
+    become: yes
+    with_items: "{{P24_name}}/jaggery/store.zip"
+    ignore_errors: False
+
+#--------------------- Apply the patch files - PATCH 00025-----------------------------------
+
+  - name: AM https, patch configuration for gateway - download the patch file - patch00024
+    get_url:
+      url: "{{patch25}}"
+      dest: "{{patch_location}}/"
+      mode: 0755
+
+  - name: AM https, patch configuration for gateway - extract the patch file - patch00024
+    unarchive:
+     src: "{{patch_location}}/wso2telco-manage-module-ui-2.0.4-00025.tar.gz"
+     dest: "{{patch_location}}/"
+     copy: no
+
+  - name: AM https, patch configuration for gateway - copying patch file to the pack
+    shell: cp -r {{ item }} {{gateway_location}}/repository/components/patches/
+    become: yes
+    with_items: "{{P25_name}}/patch_dep00025"
+    ignore_errors: False
+
+  - name: AM https, patch configuration for gateway - Remove the existing manage-service file before copying the patch file
+    file:
+      path: "{{gateway_location}}/repository/deployment/server/webapps/manage-service"
+      state: absent
+    ignore_errors: False
+
+  - name: AM https, patch configuration for gateway - Remove the existing manage-service.war file before copying the patch file
+    file:
+      path: "{{gateway_location}}/repository/deployment/server/webapps/manage-service.war"
+      state: absent
+    ignore_errors: False
+
+  - name: AM https, patch configuration for gateway - copying patch file - manage-service.war
+    shell: cp {{ item }} {{gateway_location}}/repository/deployment/server/webapps/
+    become: yes
+    with_items: "{{P25_name}}/war/manage-service.war"
+    ignore_errors: False

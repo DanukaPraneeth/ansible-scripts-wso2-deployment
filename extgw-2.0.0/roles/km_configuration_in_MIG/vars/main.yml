@@ -1,0 +1,12 @@
+---
+
+mysql_host: db.com
+mysql_user: mig_user
+mysql_password: MIG_user@123
+mysql_port: 3306
+
+mig_version: 2.1.0
+extract_location: /mnt
+mig_offset: 0
+zip_location: /mnt
+

@@ -1,0 +1,187 @@
+---
+  - set_fact:
+      hub_product: "{{extract_location}}/portal/wso2telcohub-{{hub_version}}"
+      https_port: "9443"
+      http_port: "9763"
+      http_api_endpoint: "8280"
+      https_api_endpoint: "8243"
+      LB_port: "443"
+
+
+#-------------------Copy registry.xml------------------
+  - name: mig configurations in am portal - copying registry.xml
+    copy:
+     src: "registry.xml"
+     dest: "{{hub_product}}/repository/conf"
+
+#-------------------Mysql Changes in registry.xml------------------
+  - name: mig configurations in am portal - Update the mysql user name in registry.xml
+    replace:
+      dest: "{{hub_product}}/repository/conf/registry.xml"
+      regexp: 'mysql_user'
+      replace: '{{mysql_user}}'
+      backup: no
+
+  - name: mig configurations in am portal - Update the mysql port in registry.xml
+    replace:
+      dest: "{{hub_product}}/repository/conf/registry.xml"
+      regexp: 'mysql_port'
+      replace: '{{mysql_port}}'
+      backup: no
+
+  - name: mig configurations in am portal - Update the mysql host in registry.xml
+    replace:
+      dest: "{{hub_product}}/repository/conf/registry.xml"
+      regexp: 'mysql_host'
+      replace: '{{mysql_host}}'
+      backup: no
+
+#-------------------Change dbConfig sharedregistry to govregistry ------------------
+  - name: mig configurations in am portal - Ensure dbConfig sharedregistry to govregistry in registry.xml
+    replace:
+      dest: "{{hub_product}}/repository/conf/registry.xml"
+      regexp: 'sharedregistry'
+      replace: 'govregistry'
+      backup: no
+
+#-------------------Change offset---------------------------
+#-------------------Copy api-manager.xml to hub-------------------
+  - name: mig configurations in am portal - copying api-manager.xml to repository/conf/
+    copy:
+     src: "api-manager.xml"
+     dest: "{{hub_product}}/repository/conf/api-manager.xml"
+
+#-------------------Point AuthManager and APIKeyValidator to IS------------------
+
+#------ replacing the port and the IP  with the DNS name ----------------
+
+#  - name: mig configurations in am portal - Point AuthManager and APIKeyValidator to IS
+#    replace:
+#      dest: "{{hub_product}}/repository/conf/api-manager.xml"
+#      regexp: 'IS_NAME'
+#      replace: '{{mig_host}}:{{(https_port|int) + (mig_offset|int)}}'
+#      backup: no
+
+  - name: mig configurations in am portal - Point AuthManager and APIKeyValidator to IS
+    replace:
+      dest: "{{hub_product}}/repository/conf/api-manager.xml"
+      regexp: 'IS_NAME'
+      replace: '{{mig_host}}:{{(LB_port|int)}}'
+      backup: no
+
+#-------------------Change KeyValidatorClientType in api-manager.xml in hub------------------
+  - name: mig configurations in am portal - Change KeyValidatorClientType in api-manager.xml in portal
+    replace:
+      dest: "{{hub_product}}/repository/conf/api-manager.xml"
+      regexp: '<KeyValidatorClientType>ThriftClient</KeyValidatorClientType>'
+      replace: '<KeyValidatorClientType>WSClient</KeyValidatorClientType>'
+      backup: no
+
+#-------------------Change EnableThriftServer to false in api-manager.xml in hub------------------
+  - name: mig configurations in am portal - Change KeyValidatorClientType in api-manager.xml in portal
+    replace:
+      dest: "{{hub_product}}/repository/conf/api-manager.xml"
+      regexp: '<EnableThriftServer>true</EnableThriftServer>'
+      replace: '<EnableThriftServer>false</EnableThriftServer>'
+      backup: no
+
+#-------------------Portal configurations  in api-manager.xml in hub------------------
+  - name: mig configurations in am portal - Configure portal Changes in api-manager.xml in portal
+    replace:
+      dest: "{{hub_product}}/repository/conf/api-manager.xml"
+      regexp: 'PORTAL'
+      replace: '{{portal_host}}:{{(https_port|int) + (portal_offset|int)}}'
+      backup: no
+
+  - name: mig configurations in am portal - Configure portal Changes in api-manager.xml in portal
+    replace:
+      dest: "{{hub_product}}/repository/conf/api-manager.xml"
+      regexp: 'APIENDPOINT1'
+      replace: '{{gateway_host}}:{{(http_api_endpoint|int) + (gateway_offset|int)}}'
+      backup: no
+
+  - name: mig configurations in am portal - Configure portal Changes in api-manager.xml in portal
+    replace:
+      dest: "{{hub_product}}/repository/conf/api-manager.xml"
+      regexp: 'APIENDPOINT2'
+      replace: '{{gateway_host}}:{{(https_api_endpoint|int) + (gateway_offset|int)}}'
+      backup: no
+
+  - name: mig configurations in am portal - Change 'localhost' to domain name in api-manager.xml in portal
+    replace:
+      dest: "{{hub_product}}/repository/conf/api-manager.xml"
+      regexp: 'LOCALHOST'
+      replace: '{{portal_host}}'
+      backup: no
+
+
+#-------------------Point AuthorizedAPI, RevokeAPI and TokenAPI to IS------------------
+#  - name: mig configurations in am portal - Point AuthorizedAPI to IS
+#    replace:
+#      dest: "{{hub_product}}/repository/deployment/server/synapse-configs/default/api/_AuthorizeAPI_.xml"
+#      regexp: 'https://{uri.var.hostname}:{uri.var.portnum}'
+#      replace: 'https://{{mig_host}}:{{(https_port|int) + (mig_offset|int)}}'
+#      backup: no
+#
+#  - name: mig configurations in am portal - Point RevokeAPI to IS
+#    replace:
+#      dest: "{{hub_product}}/repository/deployment/server/synapse-configs/default/api/_RevokeAPI_.xml"
+#      regexp: 'https://{uri.var.hostname}:{uri.var.portnum}'
+#      replace: 'https://{{mig_host}}:{{(https_port|int) + (mig_offset|int)}}'
+#      backup: no
+#
+#  - name: mig configurations in am portal - Point TokenAPI to IS
+#    replace:
+#      dest: "{{hub_product}}/repository/deployment/server/synapse-configs/default/api/_TokenAPI_.xml"
+#      regexp: 'https://{uri.var.hostname}:{uri.var.portnum}'
+#      replace: 'https://{{mig_host}}:{{(https_port|int) + (mig_offset|int)}}'
+#      backup: no
+
+#------------------------- COmment the following on requirement ----------------------------
+  - name: mig configurations in am portal - Point AuthorizedAPI to IS
+    replace:
+      dest: "{{hub_product}}/repository/deployment/server/synapse-configs/default/api/_AuthorizeAPI_.xml"
+      regexp: 'https://{uri.var.hostname}:{uri.var.portnum}'
+      replace: 'https://{{mig_host}}:{{(LB_port|int)}}'
+      backup: no
+
+  - name: mig configurations in am portal - Point RevokeAPI to IS
+    replace:
+      dest: "{{hub_product}}/repository/deployment/server/synapse-configs/default/api/_RevokeAPI_.xml"
+      regexp: 'https://{uri.var.hostname}:{uri.var.portnum}'
+      replace: 'https://{{mig_host}}:{{(LB_port|int)}}'
+      backup: no
+
+  - name: mig configurations in am portal - Point TokenAPI to IS
+    replace:
+      dest: "{{hub_product}}/repository/deployment/server/synapse-configs/default/api/_TokenAPI_.xml"
+      regexp: 'https://{uri.var.hostname}:{uri.var.portnum}'
+      replace: 'https://{{mig_host}}:{{(LB_port|int)}}'
+      backup: no
+
+
+  - name: AM configuration for gateway - Change Host name in repository/conf/carbon.xml
+    replace:
+      dest: "{{hub_product}}/repository/conf/carbon.xml"
+      regexp: '<!--HostName>www.wso2.org</HostName-->'
+      replace: '<HostName>{{gateway_host}}</HostName>'
+      backup: no
+
+  - name: AM configuration for gateway - Change MgtHostName name in repository/conf/carbon.xml
+    replace:
+      dest: "{{hub_product}}/repository/conf/carbon.xml"
+      regexp: '<!--MgtHostName>mgt.wso2.org</MgtHostName-->'
+      replace: '<MgtHostName>{{gateway_host}}</MgtHostName>'
+      backup: no
+
+#-------------------Start the identity server-------------------
+  - name: mig configurations in am portal - Start API Manager
+    shell: "{{hub_product}}/bin/./wso2server.sh start"
+    ignore_errors: True
+
+#-------------------Wait for server to start-------------------
+  - name: mig configurations in am portal - Wait for server to start
+    wait_for:
+      port: "{{(https_port|int)+(portal_offset|int)}}"
+      delay: 5
+    ignore_errors: True

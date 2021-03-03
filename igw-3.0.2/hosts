@@ -1,0 +1,21 @@
+[local]
+localhost ansible_connection=local
+
+[AM_server_1]
+18.216.96.35
+
+[MIG_server_1]
+18.221.229.5
+
+[DAS_server_1]
+18.219.125.30
+
+[DB_server_M]
+18.221.160.56
+
+[all:vars]
+ansible_ssh_user=centos
+ansible_ssh_private_key_file=testing-key-ohio.pem
+ansible_python_interpreter=/usr/bin/python2.7
+
+

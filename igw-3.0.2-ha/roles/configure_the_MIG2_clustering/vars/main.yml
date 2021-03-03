@@ -1,0 +1,11 @@
+---
+# CHANGE THE FOLLOWING PROPERTIES ACCORDINGLY
+
+extract_location: /mnt      # give the same extract loacation as in the role, 'download_AM_for_server'
+mig_version: 2.2.0
+
+mig_host: mig.com
+local_IP: 13.58.127.130
+local_port: 4001
+remote_IP: 52.14.47.199
+remote_port: 4000

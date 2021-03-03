@@ -1,0 +1,10 @@
+---
+# vars file for aws_automation
+## Update the following arrays with the intances you need to start
+
+extract_location: /mnt
+telco_mediation_version: v2.0.0
+esb_version: 5.0.0
+
+esb_downloadlink: https://s3.amazonaws.com/sftp-release-binaries/sftp/software/wso2esb-5.0.0.zip
+mediation_downloadlink: https://s3.amazonaws.com/sftp-release-binaries/sftp/ext-gw-mediator/v2.0.0/wso2telco_ext_gw_mediation-v2.0.0.zip

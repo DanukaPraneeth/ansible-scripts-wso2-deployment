@@ -1,0 +1,163 @@
+---
+
+  - set_fact:
+     esb_pack: "{{esb_extract_location}}/wso2esb-{{esb_version}}"
+     mediation_pack: "{{mediation_extract_location}}/wso2telco_ext_gw_mediation-{{mediation_version}}"
+
+#-------------------Extract wso2esb-5.0.0-------------------
+  - unarchive:
+     src: "{{esb_zip_location}}/wso2esb-{{esb_version}}.zip"
+     dest: "{{esb_extract_location}}"
+     copy: no
+
+#-------------------Extract wso2telco_ext_gw_mediation-v2.0.0-rc5.zip-------------------
+  - unarchive:
+     src: "{{mediation_zip_location}}/wso2telco_ext_gw_mediation-{{mediation_version}}.zip"
+     dest: "{{mediation_extract_location}}"
+     copy: no
+
+#-------------------Copy mysql connector-------------------
+  - name: mediation configurations - copying mysql-connector-java to repository/components/lib
+    copy:
+     src: "{{ item }}"
+     dest: "{{esb_pack}}/repository/components/lib"
+     owner: root
+     group: root
+     mode: 0644
+    with_fileglob:
+     - "mysql-connector-java-*.jar"
+
+#-------------------Copy jars to dropins-------------------
+#  - name: mediation configurations - copying jars to [esb_home]/repository/components/dropins
+#    synchronize:
+#     src: "{{ item }}"
+#     dest: "{{esb_pack}}/repository/components/dropins"
+#    with_fileglob:
+#     - "{{mediation_pack}}/others/dropins/*"
+
+  - name: mediation configurations - copying jars to repository/components/dropins
+    shell: cp {{mediation_pack}}/others/dropins/* {{esb_pack}}/repository/components/dropins/
+
+
+#-------------------Copy javax.persistence.jar to dropins-------------------
+  - name: mediation configurations - copying javax.persistence.jar to repository/components/dropins
+    copy:
+     src: "{{ item }}"
+     dest: "{{esb_pack}}/repository/components/dropins"
+    with_fileglob:
+     - "javax.persistence_1.0.0.jar"
+
+#-------------------Copy json-3.0.0.wso2v1.jar to dropins-------------------
+  - name: mediation configurations - copying json-3.0.0.wso2v1.jar to repository/components/dropins
+    copy:
+     src: "{{ item }}"
+     dest: "{{esb_pack}}/repository/components/dropins"
+    with_fileglob:
+     - "json-3.0.0.wso2v1.jar"
+
+#-------------------Copy jars to lib-------------------
+  - name: mediation configurations - copying jars to - repository/components/dropins
+    shell: cp {{mediation_pack}}/others/lib/* {{esb_pack}}/repository/components/lib/
+
+#-------------------Copy cars to /deployment/server/carbonapps-------------------
+  - name: mediation configurations - copying com.wso2telco.dep.hub.creditapi.capp.car to repository/deployment/server/carbonapps
+    shell: cp {{mediation_pack}}/capps/* {{esb_pack}}/repository/deployment/server/carbonapps/
+
+
+#-------------------Copy mediator-conf.properties to repository/conf-------------------
+  - name: mediation configurations - copying mediator-conf.properties to - repository/conf
+    copy:
+     src: "mediator-conf.properties"
+     dest: "{{esb_pack}}/repository/conf"
+
+#-------------------Copy MobileCountryConfig.xml to repository/conf-------------------
+  - name: mediation configurations - copying MobileCountryConfig.xml to - repository/conf
+    copy:
+     src: "MobileCountryConfig.xml"
+     dest: "{{esb_pack}}/repository/conf"
+
+#-------------------Copy spendLimit.xml to repository/conf-------------------
+  - name: mediation configurations - copying spendLimit.xml to - repository/conf
+    copy:
+     src: "spendLimit.xml"
+     dest: "{{esb_pack}}/repository/conf"
+
+#-------------------Copy oneapi-validation-conf.properties to repository/conf-------------------
+  - name: mediation configurations - copying oneapi-validation-conf.properties to - repository/conf
+    copy:
+     src: "oneapi-validation-conf.properties"
+     dest: "{{esb_pack}}/repository/conf"
+
+#-------------------Append ynapse.commons.json.output.autoPrimitive=false to synapse.properties-------------------
+  - name: mediation configurations - Append ynapse.commons.json.output.autoPrimitive=false to synapse.properties
+    lineinfile:
+     dest: "{{esb_extract_location}}/wso2esb-{{esb_version}}/repository/conf/synapse.properties"
+     line: 'synapse.commons.json.output.autoPrimitive=false'
+
+#-------------------Copy master-datasources to esb-------------------
+  - name: mediation configurations - copying master-datasources.xml to repository/conf
+    copy:
+     src: "master-datasources.xml"
+     dest: "{{esb_pack}}/repository/conf/datasources/master-datasources.xml"
+
+#-------------------Change master-datasources.xml-------------------
+  - name: mediation configurations - Setup username in master-datasources.xml file
+    replace:
+      dest: "{{esb_pack}}/repository/conf/datasources/master-datasources.xml"
+      regexp: '{username}'
+      replace: '{{mysql_user}}'
+      backup: yes
+
+  - name: mediation configurations - Setup password in master-datasources.xml file
+    replace:
+      dest: "{{esb_pack}}/repository/conf/datasources/master-datasources.xml"
+      regexp: '{password}'
+      replace: '{{mysql_password}}'
+      backup: yes
+
+  - name: mediation configurations - Setup host in master-datasources.xml file
+    replace:
+      dest: "{{esb_pack}}/repository/conf/datasources/master-datasources.xml"
+      regexp: '{database host}'
+      replace: '{{mysql_host}}'
+      backup: yes
+
+  - name: mediation configurations - Setup port in master-datasources.xml file
+    replace:
+      dest: "{{esb_pack}}/repository/conf/datasources/master-datasources.xml"
+      regexp: '{port}'
+      replace: '3306'
+      backup: yes
+
+  - name: mediation configurations - Rename hub_depdb to proddepdb in master-datasources.xml file
+    replace:
+      dest: "{{esb_pack}}/repository/conf/datasources/master-datasources.xml"
+      regexp: 'hub_depdb'
+      replace: 'proddepdb'
+      backup: yes
+
+  - name: mediation configurations - Rename hub_userstoredb to prodUMdb in master-datasources.xml file
+    replace:
+      dest: "{{esb_pack}}/repository/conf/datasources/master-datasources.xml"
+      regexp: 'hub_userstoredb'
+      replace: 'prodUMdb'
+      backup: yes
+
+
+#-------------------Switch import_db property to no----------------
+#-------------------Change offset------------------
+  - name: mediation configurations - Change offset value in repository/conf/carbon.xml
+    replace:
+      dest: "{{esb_pack}}/repository/conf/carbon.xml"
+      regexp: '<Offset>0</Offset>'
+      replace: '<Offset>{{offset}}</Offset>'
+      backup: yes
+
+#-------------------Export JAVA_HOME------------------
+  - name: mediation configurations - Export JAVA_HOME
+    replace:
+      dest: "{{esb_extract_location}}/wso2esb-{{esb_version}}/bin/wso2server.sh"
+      regexp: 'PRGDIR=\`dirname \"\$PRG\"\`'
+      replace: 'export JAVA_HOME={{java_home}} && PRGDIR=`dirname "$PRG"`'
+      backup: yes
+    when: export_java == "yes"

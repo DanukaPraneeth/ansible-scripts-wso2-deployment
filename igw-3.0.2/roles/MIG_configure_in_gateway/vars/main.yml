@@ -1,0 +1,18 @@
+---
+
+mysql_host: db.com
+mysql_user: am_user
+mysql_password: AM_user@123
+mysql_port: 3306
+
+gateway_offset: 0
+mig_offset: 0
+hub_version: 3.0.2
+
+is_name: mig.com:9443
+is_host: mig.com
+
+
+extract_location: /mnt
+zip_location: /mnt
+

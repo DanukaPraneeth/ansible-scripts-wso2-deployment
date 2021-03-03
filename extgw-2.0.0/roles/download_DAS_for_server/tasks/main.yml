@@ -1,0 +1,8 @@
+---
+#-------------------Start the identity server-------------------
+
+  - name: download the wso2telco DAS manager to the DAS servers
+    get_url:
+      url: "{{download_link}}"
+      dest: "{{extract_location}}/wso2analytics-extgw-{{analytics_version}}.zip"
+      mode: 0755

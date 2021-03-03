@@ -1,0 +1,143 @@
+---
+
+  - set_fact:
+      mig_product: "{{extract_location}}/wso2telcoids-{{mig_version}}"
+      https_port: "9443"
+
+#-------------------Remove the existing certificate files-------------------
+  - name: certificate configuration for MIG - Remove the existing wso2carbon.jks file before copying the new certificate file
+    file:
+      path: "{{mig_product}}/repository/resources/security/wso2carbon.jks"
+      state: absent
+    ignore_errors: False
+
+#-------------------Copy the certificate files-------------------
+  - name: certificate configuration for MIG - copying certificate file - wso2carbon.jks
+    copy:
+     src: "wso2carbon.jks"
+     dest: "{{mig_product}}/repository/resources/security/"
+    ignore_errors: False
+
+#-------------------Remove the existing certificate files-------------------
+  - name: certificate configuration for MIG - Remove the existing client-truststore.jks file before copying the new certificate file
+    file:
+      path: "{{mig_product}}/repository/resources/security/client-truststore.jks"
+      state: absent
+    ignore_errors: False
+
+#-------------------Copy the certificate files-------------------
+  - name: certificate configuration for MIG - copying certificate file - client-truststore.jks
+    copy:
+     src: "client-truststore.jks"
+     dest: "{{mig_product}}/repository/resources/security/"
+    ignore_errors: False
+
+#-------------------------------------------------------------------------------------------------
+#----------------------Configuring keystores in carbon.xml----------------------------------------
+  - name: certificate configuration for MIG in am portal - Configuring keystores in carbon.xml
+    replace:
+      dest: "{{mig_product}}/repository/conf/carbon.xml"
+      regexp: '<Password>wso2carbon</Password>'
+      replace: '<Password>{{httpsPassword}}</Password>'
+      backup: no
+
+  - name: certificate configuration for MIG in am portal - Configuring keystores in carbon.xml
+    replace:
+      dest: "{{mig_product}}/repository/conf/carbon.xml"
+      regexp: '<KeyAlias>wso2carbon</KeyAlias>'
+      replace: '<KeyAlias>{{KeyAlias}}</KeyAlias>'
+      backup: no
+
+  - name: certificate configuration for MIG in am portal - Configuring keystores in carbon.xml
+    replace:
+      dest: "{{mig_product}}/repository/conf/carbon.xml"
+      regexp: '<KeyPassword>wso2carbon</KeyPassword>'
+      replace: '<KeyPassword>{{httpsPassword}}</KeyPassword>'
+      backup: no
+
+#-------------------------Configure secret-conf.properties---------------------------------------------
+  - name: certificate configuration for MIG in am portal - Configuring keystores in secret-conf.properties
+    replace:
+      dest: "{{mig_product}}/repository/conf/security/secret-conf.properties"
+      regexp: '#keystore.identity.alias=wso2carbon'
+      replace: '#keystore.identity.alias={{KeyAlias}}'
+      backup: no
+
+  - name: certificate configuration for MIG in am portal - Configuring keystores in secret-conf.properties
+    replace:
+      dest: "{{mig_product}}/repository/conf/security/secret-conf.properties"
+      regexp: '#keystore.identity.store.password=wso2carbon'
+      replace: '#keystore.identity.store.password={{httpsPassword}}'
+      backup: no
+
+  - name: certificate configuration for MIG in am portal - Configuring keystores in secret-conf.properties
+    replace:
+      dest: "{{mig_product}}/repository/conf/security/secret-conf.properties"
+      regexp: '#keystore.identity.key.password=wso2carbon'
+      replace: '#keystore.identity.key.password={{httpsPassword}}'
+      backup: no
+
+  - name: certificate configuration for MIG in am portal - Configuring keystores in secret-conf.properties
+    replace:
+      dest: "{{mig_product}}/repository/conf/security/secret-conf.properties"
+      regexp: '#keystore.trust.alias=wso2carbon'
+      replace: '#keystore.trust.alias={{KeyAlias}}'
+      backup: no
+
+  - name: certificate configuration for MIG in am portal - Configuring keystores in secret-conf.properties
+    replace:
+      dest: "{{mig_product}}/repository/conf/security/secret-conf.properties"
+      regexp: '#keystore.trust.store.password=wso2carbon'
+      replace: '#keystore.trust.store.password={{httpsPassword}}'
+      backup: no
+
+#-----------------------Configure identity,xml-----------------------------
+  - name: certificate configuration for MIG in am portal - Configuring keystores for security in identity.xml
+    replace:
+      dest: "{{mig_product}}/repository/conf/identity/identity.xml"
+      regexp: '<Password>wso2carbon</Password>'
+      replace: '<Password>{{httpsPassword}}</Password>'
+      backup: no
+
+#---------------------Configuring  axis2.xml ---------------------------------------------
+  - name: certificate configuration for MIG in am portal - Configuring keystores for security in axis2.xml - Password
+    replace:
+      dest: "{{mig_product}}/repository/conf/axis2/axis2.xml"
+      regexp: '<Password>wso2carbon</Password>'
+      replace: '<Password>{{httpsPassword}}</Password>'
+      backup: no
+
+  - name: certificate configuration for MIG in am portal - Configuring keystores for security in axis2.xml - KeyPassword
+    replace:
+      dest: "{{mig_product}}/repository/conf/axis2/axis2.xml"
+      regexp: '<KeyPassword>wso2carbon</KeyPassword>'
+      replace: '<KeyPassword>{{httpsPassword}}</KeyPassword>'
+      backup: no
+
+
+#-----------------------------Configuring catalina-server.xml---------------------------
+  - name: certificate configuration for MIG in am portal - Configuring keystores in catalina-server.xml
+    replace:
+      dest: "{{mig_product}}/repository/conf/tomcat/catalina-server.xml"
+      regexp: 'keystorePass="wso2carbon"'
+      replace: 'keystorePass="{{httpsPassword}}"'
+      backup: no
+
+#-------------------Start IS server----------------
+  - name: Start IS with Key Manager
+    shell: "{{mig_product}}/bin/./wso2server.sh restart"
+    ignore_errors: True
+
+#-------------------Wait for server to start-------------------
+  - name: Wait for server to start
+    wait_for:
+      port: "{{(https_port|int)+(mig_offset|int)}}"
+      delay: 10
+    ignore_errors: True
+
+#------------------Display the message to upload workflow .bar files --------------------------
+  - name: "--- PLEASE UPLOAD THE WORKFLOW BAR FILES TO THE ACTIVITI-EXPLORER OF THE  API MANAGER TO COMPLETE THE INTERNAL GATEWAY IMLEMENTATION---"
+    shell: echo "Playbook execution completed"
+
+  - name: "--- WORKFLOW BAR FILES LOCATION ( wso2telcohub-2.1.0 -> repository -> resources -> workflow -> ApplicationCreationApprovalWorkflow.bar & SubscriptionCreationApprovalWorkflow.bar ) ---"
+    shell: echo "Playbook execution completed"

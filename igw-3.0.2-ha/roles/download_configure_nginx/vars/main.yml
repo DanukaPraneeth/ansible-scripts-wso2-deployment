@@ -1,0 +1,17 @@
+---
+# vars file for aws_automation
+## Update the following arrays with the intances you need to start
+
+mig_ip_1: 52.14.47.199
+mig_ip_2: 13.58.127.130
+mig_offset: 0
+
+crt_file: qasetup.crt
+key_file: qasetup.key
+
+console_port: 443                           # 443 for https and 80 for http
+
+
+# sudo semanage port -l | grep http_port_t
+# sudo semanage port -a -t http_port_t  -p tcp 8243
+# sudo semanage port -a -t http_port_t  -p tcp 9443

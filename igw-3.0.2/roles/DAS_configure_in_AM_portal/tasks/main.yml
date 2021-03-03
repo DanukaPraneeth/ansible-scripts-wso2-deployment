@@ -1,0 +1,31 @@
+---
+  - set_fact:
+      home: "{{portal_home}}/portal"
+      https_port: "9443"
+
+#-------------------Uncomment ClaimsRetrieverImplClass tag in api-manager.xml------------------
+  - name: DAS configure in portal - Uncomment ClaimsRetrieverImplClass tag in api-manager.xml
+    replace:
+      dest: "{{home}}/wso2telcohub-{{product_version}}/repository/conf/api-manager.xml"
+      regexp: '<!--ClaimsRetrieverImplClass'
+      replace: '<ClaimsRetrieverImplClass'
+      backup: yes
+
+  - name: DAS configure in portal - Uncomment ClaimsRetrieverImplClass tag in api-manager.xml
+    replace:
+      dest: "{{home}}/wso2telcohub-{{product_version}}/repository/conf/api-manager.xml"
+      regexp: 'ClaimsRetrieverImplClass-->'
+      replace: 'ClaimsRetrieverImplClass>'
+      backup: yes
+
+#-------------------Start the identity server-------------------
+  - name: DAS configure in portal - Restart API Manager after DAS configurations
+    shell: "{{home}}/wso2telcohub-{{product_version}}/bin/./wso2server.sh restart"
+    ignore_errors: True
+
+#-------------------Wait for server to start-------------------
+  - name: DAS configure in portal - Wait for server to restart
+    wait_for:
+      port: "{{(https_port|int)+(portal_offset|int)}}"
+      delay: 5
+    ignore_errors: True

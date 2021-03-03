@@ -1,0 +1,14 @@
+---
+# CHANGE THE FOLLOWING PROPERTIES ACCORDINGLY
+
+
+extract_location: /mnt      # give the same extract loacation as in the role, 'download_AM_for_server'
+product_version: 3.0.2
+
+httpsPassword: wso2telco@123
+KeyAlias: celcomwso2telco
+
+patch_location: /mnt/patches
+patch417: https://s3.amazonaws.com/sftp-release-binaries/wso2telco/patch0417.zip
+patch24: https://s3.amazonaws.com/sftp-release-binaries/sftp/dep/3_0_X/patches/wso2telco-component-dep-2.4.2-00024.tar.gz
+patch25: https://s3.amazonaws.com/sftp-release-binaries/sftp/dep/3_0_X/patches/wso2telco-manage-module-ui-2.0.4-00025.tar.gz

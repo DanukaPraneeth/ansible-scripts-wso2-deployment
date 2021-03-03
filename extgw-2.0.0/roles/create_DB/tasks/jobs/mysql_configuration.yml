@@ -1,0 +1,16 @@
+---
+  - name: MYSQL DB configurations - Add mysqld tag
+    lineinfile:
+      dest: "/etc/my.cnf"
+      line: '[mysqld]'
+      insertbefore: '!includedir /etc/conf.d/'
+
+  - name: MYSQL DB configurations - Bind mysql port for 0.0.0.0
+    lineinfile:
+      dest: "/etc/my.cnf"
+      line: 'bind-address = 0.0.0.0'
+      insertafter: '!includedir /etc/mysql.conf.d/'
+
+  - name: MYSQL DB configurations - restart mysql
+    shell: service mysql restart
+    become: yes

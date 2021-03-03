@@ -1,0 +1,19 @@
+---
+# CHANGE THE FOLLOWING PROPERTIES ACCORDINGLY
+
+# host of mysql server
+mysql_host: db.com
+mysql_user: das_user
+mysql_password: DAS_user@123
+mysql_port: 3306
+
+DAS_domain_name: das.com
+
+# location where hub product is saved
+analytic_offset: 0
+zip_location: /mnt
+analytic_extract_location: /mnt
+
+analytics_version: 2.1.0
+java_home: /usr
+export_java: "yes"

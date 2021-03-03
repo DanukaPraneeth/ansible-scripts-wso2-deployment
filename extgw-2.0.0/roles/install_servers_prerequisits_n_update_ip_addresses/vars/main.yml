@@ -1,0 +1,23 @@
+---
+# vars file for aws_automation
+## Update the following arrays with the intances you need to start
+
+AM_server_1_ip: 18.221.43.255
+AM_domain_name: am.com
+
+MIG_server_1_ip: 18.218.235.207
+MIG_server: mig.com:9443       # change the port accorgingly for any offset
+MIG_domain_name: mig.com
+
+DAS_server_1_ip: 52.14.99.252
+DAS_domain_name: das.com
+
+Mediation_server_1_ip: 52.14.99.252
+Mediation_domain_name: mediation.com
+
+DB_server_M_ip: 18.218.45.148
+DB_domain_name: db.com
+
+sandbox_host: 18.218.235.207
+
+ansible_user: centos

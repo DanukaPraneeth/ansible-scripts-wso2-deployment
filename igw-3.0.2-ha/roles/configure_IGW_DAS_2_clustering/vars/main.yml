@@ -1,0 +1,19 @@
+---
+# CHANGE THE FOLLOWING PROPERTIES ACCORDINGLY
+
+# host of mysql server
+analytic_extract_location: /mnt
+analytics_version: 2.1.0
+
+DAS_domain_name: das.com
+
+node1_IP: 18.219.182.133
+node1_PORT: 4001
+
+node2_IP: 18.219.182.133
+node2_PORT: 4000
+
+symLink_path: /var/analytics
+# /home/ubuntu/das/das_symlink/
+
+node_private_IP: 172.31.20.174

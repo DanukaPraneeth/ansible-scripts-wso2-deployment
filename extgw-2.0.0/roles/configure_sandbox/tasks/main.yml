@@ -1,0 +1,57 @@
+---
+
+  - name: creating sandbox directory
+    file:
+     path: "{{extract_location}}/sandbox-service-bin-{{product_version}}"
+     mode: 0755
+     state: directory
+    ignore_errors: true
+
+#-------------------Extract wso2telcohub-2.1.5-------------------
+  - unarchive:
+     src: "{{zip_location}}/sandbox-service-bin-{{product_version}}.zip"
+     dest: "{{extract_location}}/sandbox-service-bin-{{product_version}}/"
+     copy: no
+
+#-------------------Setup config file for deployment------------------
+  - name: sandbox configuration - Setup config file for deployment
+    replace:
+      dest: "{{extract_location}}/sandbox-service-bin-{{product_version}}/deploy/config.yml"
+      regexp: '<IP_OF_DB_SERVER>'
+      replace: '{{mysql_host}}'
+      backup: yes
+
+  - name: sandbox configuration - Setup config file for deployment
+    replace:
+      dest: "{{extract_location}}/sandbox-service-bin-{{product_version}}/deploy/config.yml"
+      regexp: '<DB_NAME_OF_SANDBOX>'
+      replace: 'sandbox'
+      backup: yes
+
+  - name: sandbox configuration - Setup config file for deployment
+    replace:
+      dest: "{{extract_location}}/sandbox-service-bin-{{product_version}}/deploy/config.yml"
+      regexp: 'bindHost: localhost'
+      replace: 'bindHost: 0.0.0.0'
+      backup: yes
+
+  - name: sandbox configuration - Setup config file for deployment
+    replace:
+      dest: "{{extract_location}}/sandbox-service-bin-{{product_version}}/deploy/config.yml"
+      regexp: 'user: root'
+      replace: 'user: {{mysql_user}}'
+      backup: yes
+
+  - name: sandbox configuration - Setup config file for deployment
+    replace:
+      dest: "{{extract_location}}/sandbox-service-bin-{{product_version}}/deploy/config.yml"
+      regexp: 'password:'
+      replace: 'password: {{mysql_password}}'
+      backup: yes
+
+  - name: sandbox configuration - Setup log file location
+    replace:
+      dest: "{{extract_location}}/sandbox-service-bin-{{product_version}}/deploy/config.yml"
+      regexp: 'log/sandbox_service'
+      replace: '{{extract_location}}/sandbox-service-bin-{{product_version}}/log/sandbox_service'
+      backup: yes

@@ -1,0 +1,7 @@
+---
+
+#  - include: jobs/mysql_configuration.yml
+
+  - include: jobs/hub_configuration.yml
+  - include: jobs/mig_configuration.yml
+  - include: jobs/hub-das_configuration.yml

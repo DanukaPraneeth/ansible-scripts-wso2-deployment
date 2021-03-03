@@ -1,0 +1,88 @@
+---
+
+  - set_fact:
+      mig_product: "wso2telcoids-{{mig_version}}"
+
+#-------------------Extract wso2telcoids-2.1.0--------------------------
+  - unarchive:
+     src: "{{zip_location}}/{{mig_product}}.zip"
+     dest: "{{extract_location}}"
+     copy: no
+
+#----------------------Copy mysql connector--------------------------
+  - name: MIG configurations - copying mysql-connector-java to [carbon_home]/repository/components/lib
+    copy:
+     src: "{{ item }}"
+     dest: "{{extract_location}}/{{mig_product}}/repository/components/lib"
+     owner: root
+     group: root
+     mode: 0644
+    with_fileglob:
+     - "mysql-connector-java-*.jar"
+
+#-------------------Copy ussdstub, playground to wso2telcoids-2.0.2-SNAPSHOT-------------------
+  - name: MIG configurations - copying ussdstub.war
+    copy:
+     src: "ussdstub.war"
+     dest: "{{extract_location}}/{{mig_product}}/repository/deployment/server/webapps/ussdstub.war"
+     owner: root
+     group: root
+     mode: 0644
+
+  - name: MIG configurations - copying playground.war
+    copy:
+     src: "playground2.war"
+     dest: "{{extract_location}}/{{mig_product}}/repository/deployment/server/webapps/playground2.war"
+     owner: root
+     group: root
+     mode: 0644
+
+#-------------------Change master-datasources.xml-------------------
+  - name: MIG configurations - Setup username in master-datasources.xml file
+    replace:
+      dest: "{{extract_location}}/{{mig_product}}/repository/conf/datasources/master-datasources.xml"
+      regexp: '<username>root</username>'
+      replace: '<username>{{mysql_user}}</username>'
+      backup: no
+
+  - name: MIG configurations - Setup password in master-datasources.xml file
+    replace:
+      dest: "{{extract_location}}/{{mig_product}}/repository/conf/datasources/master-datasources.xml"
+      regexp: '(\s+)<password></password>?'
+      replace: '\n<password>{{mysql_password}}</password>'
+      backup: no
+
+  - name: MIG configurations - Setup host in master-datasources.xml file
+    replace:
+      dest: "{{extract_location}}/{{mig_product}}/repository/conf/datasources/master-datasources.xml"
+      regexp: 'localhost'
+      replace: '{{mysql_host}}'
+      backup: no
+
+  - name: MIG configurations - Setup port in master-datasources.xml file
+    replace:
+      dest: "{{extract_location}}/{{mig_product}}/repository/conf/datasources/master-datasources.xml"
+      regexp: '3306'
+      replace: '{{mysql_port}}'
+      backup: no
+
+#-------------------Change offset------------------
+  - name: MIG configurations - Change offset value in repository/conf/carbon.xml
+    replace:
+      dest: "{{extract_location}}/{{mig_product}}/repository/conf/carbon.xml"
+      regexp: '<Offset>0</Offset>'
+      replace: '<Offset>{{mig_offset}}</Offset>'
+      backup: no
+
+#-------------------Export JAVA_HOME------------------
+  - name: MIG configurations - Export JAVA_HOME
+    replace:
+      dest: "{{extract_location}}/wso2telcoids-{{mig_version}}/bin/wso2server.sh"
+      regexp: 'PRGDIR=\`dirname \"\$PRG\"\`'
+      replace: 'export JAVA_HOME={{java_home}} && PRGDIR=`dirname "$PRG"`'
+      backup: yes
+    when: export_java == "yes"
+
+#------------------Display the message to configure IS an KM UI configurations
+  - name: "PLEASE CONFIGURE THE - IS AS KEY MANAGER - IN THE UI OF THE IS AFTER THE COMPLETION OF THIS PLAYBOOK ( Home > Configure > Feature) AND RUN THE NEXT PLAYBOOK"
+    shell: echo "IS AS KEY MANAGER"

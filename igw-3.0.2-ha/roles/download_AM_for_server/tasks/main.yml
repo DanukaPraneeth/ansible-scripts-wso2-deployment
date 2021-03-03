@@ -1,0 +1,13 @@
+---
+#-------------------Start the identity server-------------------
+- name: download the wso2 API manager to the AM servers
+  get_url:
+    url: "{{download_link}}"
+    dest: "{{zip_location}}/wso2telcohub-{{product_version}}.zip"
+    mode: 0755
+
+##------------------ download the patch files-----------------------
+#- name: copy the wso2 API manager patch file to the AM servers
+#  copy:
+#    src: "WSO2Telco-DEP-{{product_version}}-001.zip"
+#    dest: "{{zip_location}}"

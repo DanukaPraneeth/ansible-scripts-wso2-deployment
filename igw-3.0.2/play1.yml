@@ -1,0 +1,15 @@
+---
+
+#------------------------------------------------------- Create new AWS servers ----------------------------------------------------------
+
+##  update the domain name of the MIG / (IP:PORT) of the MIG in the var file of this playbook before execution ##
+
+- name: Download basic prerequisits and update role variables
+  hosts: local
+  become: true
+  become_method: sudo
+  gather_facts: True
+  tags: Install ansible on new servers and Update the roles with new IP addresses
+
+  roles:
+    - install_servers_prerequisits_n_update_ip_addresses_withPEM

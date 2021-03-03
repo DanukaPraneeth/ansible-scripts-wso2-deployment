@@ -1,0 +1,91 @@
+---
+
+#---------------------- create an ec2 -----------------------------------------
+
+- name: Internal gateway setup automation process - Databases
+  hosts: DB_server_M
+  become: true
+  become_method: sudo
+  gather_facts: True
+  tags: DB server setup
+
+  roles:
+    - dbserver_prerequisites
+    - import_products
+    - create_DB
+
+#--------------------- Setup the AM server ----------------------------------------
+
+- name: Internal gateway setup automation process -API Manager
+  hosts: AM_server_1
+  become: true
+  become_method: sudo
+  gather_facts: True
+  tags: API manager
+
+  roles:
+    - product_prerequisites
+    - download_AM_for_server
+    - configure_the_AM_gateway
+    - configure_the_AM_portal
+    - MIG_configure_in_gateway
+    - MIG_configure_in_portal
+
+
+- name: Internal gateway setup automation process - Databases
+  hosts: DB_server_M
+  become: true
+  become_method: sudo
+  gather_facts: True
+  tags: DB server setup
+
+  roles:
+    - permission_tree
+
+#--------------------- Setup the AM server ----------------------------------------
+
+- name: Internal gateway setup automation process -API Manager
+  hosts: AM_server_1
+  become: true
+  become_method: sudo
+  gather_facts: True
+  tags: API manager
+
+  roles:
+    - configure_AM_gateway_security
+    - configure_AM_portal_security
+    - DAS_configure_in_AM_gateway
+    - DAS_configure_in_AM_portal
+
+#-------------------------- Setup the DAS server ---------------------------------------------
+
+- name: Internal gateway setup automation process - DAS server
+  hosts: DAS_server_1
+  become: true
+  become_method: sudo
+  gather_facts: True
+  tags: MIG
+
+  roles:
+    - product_prerequisites
+    - download_DAS_for_server
+    - configure_DAS
+    - configure_DAS_security
+    - start_DAS
+
+
+#------------------------ Setup the MIG server ----------------------------------------
+
+- name: Internal gateway setup automation process - MIG server
+  hosts: MIG_server_1
+  become: true
+  become_method: sudo
+  gather_facts: True
+  tags: MIG
+
+  roles:
+    - product_prerequisites
+    - download_MIG_for_server
+    - configure_the_MIG
+    - start_MIG
+

@@ -1,0 +1,9 @@
+---
+# COMPULSORY TO CHANGE FOLLOWING PROPERTIES
+
+
+esb_home: /mnt
+offset: 0
+esb_version: 5.0.0
+
+

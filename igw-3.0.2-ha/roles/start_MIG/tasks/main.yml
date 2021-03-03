@@ -1,0 +1,18 @@
+---
+  - set_fact: 
+      mig_product: "wso2telcoids-{{mig_version}}"
+      https_port: "9443"
+
+#-------------------Start IS server----------------
+  - name: Start MIG
+    shell: "{{extract_location}}/{{mig_product}}/bin/./wso2server.sh start"
+    ignore_errors: True
+
+#-------------------Wait for server to start-------------------
+  - name: Wait for server to start
+    wait_for:
+      port: "{{(https_port|int)+(mig_offset|int)}}"
+      delay: 10
+    ignore_errors: True
+
+
